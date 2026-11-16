@@ -151,7 +151,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
     <div class="measurebar" id="measureBar"></div>
     <div class="vbar" id="barLive">
       <button class="big rec" id="btnStart">● Start</button>
-      <button id="btnReview" disabled>⏸ Relire</button>
+      <button id="btnReview" class="hidden">⏸ Relire</button>
+      <button class="danger" id="btnResetAll">↺ Réinitialiser</button>
       <span class="spacer"></span>
       <div class="delayctl" title="Délay"><button id="dMinus">−</button><span id="dVal">5 s</span><button id="dPlus">+</button></div>
       <button id="btnMirror" title="Miroir">⇋</button>
@@ -204,7 +205,7 @@ const PENS=['Ajustements pendant le montage / démontage','Communication inutile
 /* Multiplicateur : 5 à 10 s → x1 ; 10 à 14 s → x1,5 ; + de 14 s → x2 */
 function multFor(t){ if(t==null||isNaN(t)) return null; return t<10?1:(t<=14?1.5:2); }
 
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 const KEY='acrovictor.v3';
 let S=load();
 function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.results) return s;}catch(e){} return {results:[],settings:{delay:5,res:960,mirror:false}}; }
@@ -243,7 +244,7 @@ $('#addGym').onclick=()=>{ names.gym.push(''); renderNames(); $('#gymList').last
 $('#addObs').onclick=()=>{ names.obs.push(''); renderNames(); $('#obsList').lastElementChild.focus(); };
 $('#btnGo').onclick=()=>{
   G={id:Date.now().toString(36),date:new Date().toISOString(),gym:names.gym.map(s=>s.trim()).filter(Boolean),obs:names.obs.map(s=>s.trim()).filter(Boolean),videos:[]};
-  newEval(); vidHidden=false; $('#evalView').classList.remove('novideo'); show('eval');
+  newEval(); vidHidden=false; $('#evalView').classList.remove('novideo'); show('eval'); resetVideo();
 };
 function show(v){ ['names','eval','hist'].forEach(x=>$('#'+x+'View').classList.toggle('hidden',x!==v)); if(v!=='eval'){ camStop(); clearClips(); } window.scrollTo(0,0); }
 
@@ -313,7 +314,7 @@ $('#panel').addEventListener('click',ev=>{
     if(cur.mode===2&&used[0].fig===used[1].fig&&!confirm('Les 2 figures sont identiques. Continuer ?')) return;
     if(used.some(x=>x.time==null)&&!confirm('Un temps n\'est pas mesuré. Valider quand même ?')) return;
     G.videos.push({n:G.videos.length+1,mode:cur.mode,liaison:cur.mode===2?liaison():null,date:new Date().toISOString(),figs:structuredClone(used)});
-    toast('Vidéo '+G.videos.length+' validée ✔'); newEval(); return;
+    toast('Vidéo '+G.videos.length+' validée ✔ — prêt pour le passage suivant'); newEval(); resetVideo(); return;
   }
   else if(t.id==='btnFinish'){
     if(!G.videos.length&&!confirm('Aucune vidéo validée. Terminer quand même ?')) return;
@@ -352,12 +353,25 @@ function camStop(){ clearTimeout(capTimer); capTimer=null; if(stream){stream.get
 function setState(st){
   state=st;
   $('#stageMsg').classList.toggle('hidden',st!=='off');
-  $('#barReplay').classList.toggle('hidden',st!=='review');
-  $('#btnReview').disabled=st==='off';
+  $('#barReplay').classList.toggle('hidden',st!=='review'&&st!=='stopped');
+  $('#btnReview').classList.toggle('hidden',st==='off'||st==='stopped');
   $('#btnReview').textContent=st==='review'?'▶ Reprendre le délay':'⏸ Relire';
-  $('#btnStart').textContent=st==='off'?'● Start':'↺ Nouveau départ';
-  if(st!=='review'){ reviewPlay=false; }
+  $('#btnStart').classList.toggle('hidden',st!=='off');
+  $('#btnLive').classList.toggle('hidden',st==='stopped');
+  if(st!=='review'&&st!=='stopped'){ reviewPlay=false; }
   $('#bPlay').textContent=reviewPlay?'⏸':'▶';
+}
+let stopEnd=null;
+/* Arrêt du délay (déclenché par la dernière « Fin de montage ») : on garde la vidéo pour la relire */
+function stopDelay(){
+  if(state==='off'||state==='stopped') return;
+  clearTimeout(capTimer); capTimer=null;
+  stopEnd=frames.length?frames[frames.length-1].t:performance.now();
+  reviewT=displayedT!=null?displayedT:stopEnd; reviewPlay=false; setState('stopped');
+}
+function resetVideo(){
+  clearTimeout(capTimer); capTimer=null; frames=[]; shown=null; displayedT=null; startT=null; stopEnd=null;
+  dctx.clearRect(0,0,disp.width,disp.height); setState('off');
 }
 async function startRun(){
   if(!stream && !(await camStart())) return;
@@ -382,25 +396,26 @@ function drawFrame(f){
   if(window.createImageBitmap) createImageBitmap(f.b).then(b=>{done(b);b.close&&b.close();}).catch(()=>decoding=false);
   else { const u=URL.createObjectURL(f.b),im=new Image(); im.onload=()=>{done(im);URL.revokeObjectURL(u);}; im.onerror=()=>decoding=false; im.src=u; }
 }
-const liveEdge=()=>performance.now()-S.settings.delay*1000;
+const liveEdge=()=>state==='stopped'&&stopEnd!=null?stopEnd:performance.now()-S.settings.delay*1000;
 function tick(){
   requestAnimationFrame(tick);
   const now=performance.now(), dt=now-lastTick; lastTick=now;
   const st=$('#ovState'); st.classList.remove('buf');
   if(state==='off'){ $('#ovChrono').textContent='0,0 s'; st.textContent='Délay '+S.settings.delay+' s'; return; }
   let target;
-  if(state==='review'){
-    if(reviewPlay){ reviewT+=dt*(slow?0.5:1); if(reviewT>=liveEdge()){ setState('run'); } }
-    target= state==='review' ? reviewT : liveEdge();
+  if(state==='review'||state==='stopped'){
+    if(reviewPlay){ reviewT+=dt*(slow?0.5:1);
+      if(reviewT>=liveEdge()){ if(state==='stopped'){ reviewT=liveEdge(); reviewPlay=false; $('#bPlay').textContent='↻'; } else setState('run'); } }
+    target= state==='run' ? liveEdge() : reviewT;
   } else target=liveEdge();
   const i=frameAt(target);
   if(i<0){ displayedT=null; if(shown){ shown=null; dctx.clearRect(0,0,disp.width,disp.height); } st.textContent='buffering…'; st.classList.add('buf'); $('#ovChrono').textContent='0,0 s'; drawMeasure(); return; }
   const f=frames[i]; if(f!==shown&&!decoding){ shown=f; drawFrame(f); }
   displayedT=shown?shown.t:null;
-  st.textContent= state==='review' ? 'Relecture' : 'Délay '+S.settings.delay+' s';
+  st.textContent= state==='stopped' ? 'Vidéo arrêtée · relecture' : state==='review' ? 'Relecture' : 'Délay '+S.settings.delay+' s';
   $('#ovChrono').textContent= displayedT!=null ? fmtT((displayedT-startT)/1000) : '0,0 s';
   drawMeasure();
-  if(state==='review' && frames.length && document.activeElement!==$('#seek')){
+  if((state==='review'||state==='stopped') && frames.length && document.activeElement!==$('#seek')){
     const a=frames[0].t, z=Math.max(a+1,liveEdge()); $('#seek').value=Math.round((reviewT-a)/(z-a)*1000);
   }
 }
@@ -412,8 +427,8 @@ $('#btnReview').onclick=()=>{
   reviewT=displayedT; reviewPlay=false; setState('review');
 };
 $('#btnLive').onclick=()=>setState('run');
-$('#bPlay').onclick=()=>{ reviewPlay=!reviewPlay; $('#bPlay').textContent=reviewPlay?'⏸':'▶'; };
-const seekBy=d=>{ if(state!=='review'||!frames.length) return; reviewPlay=false; $('#bPlay').textContent='▶'; reviewT=Math.max(frames[0].t,Math.min(liveEdge(),reviewT+d*1000)); };
+$('#bPlay').onclick=()=>{ if(!reviewPlay&&state==='stopped'&&reviewT>=liveEdge()-50&&frames.length) reviewT=Math.max(frames[0].t,startT); reviewPlay=!reviewPlay; $('#bPlay').textContent=reviewPlay?'⏸':'▶'; };
+const seekBy=d=>{ if((state!=='review'&&state!=='stopped')||!frames.length) return; reviewPlay=false; $('#bPlay').textContent='▶'; reviewT=Math.max(frames[0].t,Math.min(liveEdge(),reviewT+d*1000)); };
 $('#bBack').onclick=()=>seekBy(-1); $('#bFwd').onclick=()=>seekBy(1);
 $('#bFrameB').onclick=()=>seekBy(-0.1); $('#bFrameF').onclick=()=>seekBy(0.1);
 $('#bSlow').onclick=()=>{ slow=!slow; $('#bSlow').textContent='Vitesse ×'+(slow?'0,5':'1'); };
@@ -447,11 +462,16 @@ $('#measureBar').addEventListener('click',e=>{
     if(sl.debut==null){ toast('Appuyez d\'abord sur Début montage figure '+(i+1)); return; }
     if(vt<sl.debut){ toast('La fin est avant le début'); return; }
     sl.fin=vt; sl.time=Math.round((sl.fin-sl.debut)*10)/10;
+    if(i===(cur.mode===2?1:0)) stopDelay();
     toast('Figure '+(i+1)+' : '+fmtT(sl.time)+(i===1&&liaison()!=null?' · liaison '+fmtT(liaison()):''));
   }
   if(cur.mode===2) cur.slot=i;
   renderPanel();
 });
+$('#btnResetAll').onclick=()=>{
+  if(!confirm('Repartir de zéro ? La vidéo et la fiche en cours sont effacées (les noms sont conservés).')) return;
+  newEval(); resetVideo(); toast('Réinitialisé');
+};
 let vidHidden=false;
 function setVidHidden(h){ vidHidden=h; $('#evalView').classList.toggle('novideo',h); renderPanel(); }
 $('#btnHideVid').onclick=()=>setVidHidden(true);
