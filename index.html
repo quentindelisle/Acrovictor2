@@ -3,920 +3,410 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acrovictor – Acrosport vidéo différée</title>
+<title>Acrovictor – Vidéo délay acrosport</title>
 <meta name="theme-color" content="#1e3a8a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Acrovictor">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/favicon.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
-:root{
-  --bg:#f1f4fa; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#dbe2ee;
-  --primary:#1e3a8a; --primary2:#2f55c4; --accent:#f97316;
-  --ok:#15803d; --okbg:#dcefd8; --ko:#b91c1c; --kobg:#f6d2d2; --mult:#c9d9f5;
-  --radius:14px;
-}
+:root{--bg:#f1f4fa;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#dbe2ee;--primary:#1e3a8a;--accent:#f97316;--ok:#15803d;--okbg:#dcefd8;--ko:#b91c1c;--kobg:#f6d2d2;--mult:#c9d9f5}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
 button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:#e6ebf5;color:var(--ink);touch-action:manipulation}
 button.primary{background:var(--primary);color:#fff}
 button.accent{background:var(--accent);color:#fff}
 button.danger{background:#fee2e2;color:var(--ko)}
-button.ghost{background:transparent}
-button:disabled{opacity:.45;cursor:default}
-input,select,textarea{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+button:disabled{opacity:.45}
+input,textarea,select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
 textarea{width:100%;resize:vertical}
-h2{font-size:1.2rem;margin:0 0 12px}
-h3{font-size:1rem;margin:0 0 8px}
-.muted{color:var(--muted)}
-.small{font-size:.85rem}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .spacer{flex:1}
-.card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:14px}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:14px}
 .hidden{display:none!important}
-
-/* App bar */
-header.app{position:sticky;top:0;z-index:20;background:var(--primary);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 14px 0}
-.brand{display:flex;align-items:center;gap:10px;padding-bottom:6px}
-.brand img{width:34px;height:34px;border-radius:8px}
-.brand b{font-size:1.15rem;letter-spacing:.3px}
-.brand .sig{font-size:.75rem;opacity:.75}
-.brand select{background:rgba(255,255,255,.14);color:#fff;border:0;max-width:200px}
-.brand select option{color:#000}
-nav.tabs{display:flex;gap:2px;overflow-x:auto}
-nav.tabs button{background:transparent;color:#cfd9f5;border-radius:10px 10px 0 0;padding:10px 16px;white-space:nowrap}
-nav.tabs button.on{background:var(--bg);color:var(--primary);font-weight:600}
+h2{font-size:1.2rem;margin:0 0 12px} h3{font-size:1rem;margin:0 0 8px}
+header{position:sticky;top:0;z-index:20;background:var(--primary);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;display:flex;align-items:center;gap:10px}
+header img{width:34px;height:34px;border-radius:8px}
+header b{font-size:1.15rem} header .sig{font-size:.75rem;opacity:.75}
+header button{background:rgba(255,255,255,.15);color:#fff}
 main{padding:14px;max-width:1400px;margin:0 auto}
 
-/* chips */
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{padding:8px 12px;border-radius:999px;background:#eef2fa;border:2px solid transparent;font-size:.95rem;user-select:none}
-.chip.sel{background:#dbe6ff;border-color:var(--primary2);font-weight:600}
-.chip.obs{background:#fff3e8;border-color:var(--accent)}
-.chip .tag{font-size:.72rem;background:#fff;border-radius:6px;padding:1px 5px;margin-left:5px;color:var(--muted)}
-.chip .x{margin-left:6px;color:var(--ko);font-weight:700}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.78rem;background:#eef2fa}
-.badge.warn{background:#fff1d6;color:#9a5b00}
-.badge.ok{background:var(--okbg);color:var(--ok)}
-.badge.ko{background:var(--kobg);color:var(--ko)}
+/* Saisie des noms */
+.names{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.names{grid-template-columns:1fr}}
+.namelist input{width:100%;margin-bottom:8px;font-size:1.05rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border-radius:999px;background:#eef2fa;font-size:.9rem}
 
-/* tables */
-table{border-collapse:collapse;width:100%}
-th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-th{font-size:.8rem;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.3px}
-.tablewrap{overflow-x:auto}
-td.num,th.num{text-align:right}
-
-/* groups */
-.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.gcard h3{display:flex;align-items:center;gap:8px}
-.gcard input.gname{font-weight:600;border:0;padding:4px 0;font-size:1rem;width:100%}
-
-/* figures */
-.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.fig{background:#fff;border:3px solid var(--line);border-radius:var(--radius);padding:10px;text-align:center}
-.fig.sel{border-color:var(--primary2);box-shadow:0 0 0 3px #dbe6ff}
-.fig img{width:100%;height:120px;object-fit:contain}
-.fig b{display:block;font-size:1.2rem}
-
-/* eval layout */
-#evalView{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(330px,1fr);gap:14px;align-items:start}
-@media (max-width:900px){#evalView{grid-template-columns:1fr}.figs{grid-template-columns:1fr 1fr 1fr}.fig img{height:80px}}
-.videobox{position:sticky;top:110px}
-.stage{position:relative;background:#0b1020;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+/* Vidéo + fiche */
+#evalView{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(340px,1fr);gap:14px;align-items:start}
+@media(max-width:900px){#evalView{grid-template-columns:1fr}}
+.videobox{position:sticky;top:66px}
+.stage{position:relative;background:#0b1020;border-radius:14px;overflow:hidden;aspect-ratio:4/3}
 .stage canvas{width:100%;height:100%;object-fit:contain;display:block}
 .stage canvas.mirror{transform:scaleX(-1)}
-.stage .msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#cbd5e1;text-align:center;padding:20px;gap:12px}
-.stage .msg big{font-size:3rem;font-weight:700;color:#fff}
+.msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#cbd5e1;text-align:center;gap:12px;padding:20px}
+.msg big{font-size:3rem;font-weight:700;color:#fff}
 .ov{position:absolute;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-weight:600}
 .ov.tl{top:10px;left:10px;font-size:.9rem}
-.ov.tr{top:10px;right:10px;font-size:2.4rem;font-variant-numeric:tabular-nums;min-width:150px;text-align:right}
-.ov.tr.run{background:rgba(21,128,61,.85)}
-.ov.tr.wait{background:rgba(249,115,22,.85);font-size:1.3rem}
-.ov.tr.stop{background:rgba(30,58,138,.9)}
+.ov.tr{top:10px;right:10px;font-size:2.4rem;font-variant-numeric:tabular-nums;min-width:140px;text-align:right}
+.ov.run{background:rgba(21,128,61,.85)} .ov.wait{background:rgba(249,115,22,.85);font-size:1.3rem} .ov.stop{background:rgba(30,58,138,.9)}
 .ov.bl{bottom:10px;left:10px;font-size:.85rem}
 .vbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-.vbar button{padding:12px 14px}
 .vbar .big{font-size:1.05rem;font-weight:700;padding:14px 20px}
-.delayctl{display:flex;align-items:center;gap:4px;background:#e6ebf5;border-radius:10px;padding:2px}
-.delayctl span{min-width:70px;text-align:center;font-weight:600}
-.delayctl button{padding:10px 12px;background:transparent}
+.delayctl{display:flex;align-items:center;background:#e6ebf5;border-radius:10px}
+.delayctl span{min-width:60px;text-align:center;font-weight:600}
+.delayctl button{background:transparent;padding:10px 12px}
 #scrub{width:100%;margin-top:8px}
 
-.panel .who{display:flex;gap:10px;align-items:center}
-.panel .who img{width:90px;height:66px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}
-.essaitabs{display:flex;gap:6px;margin:10px 0}
+.figtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.figtab{background:#fff;border:3px solid var(--line);border-radius:12px;padding:6px;text-align:center;cursor:pointer;position:relative}
+.figtab.on{border-color:#2f55c4;box-shadow:0 0 0 3px #dbe6ff}
+.figtab img{width:100%;height:70px;object-fit:contain}
+.figtab b{display:block}
+.figtab .sc{font-size:.8rem;color:var(--muted)}
+.essaitabs{display:flex;gap:6px;margin-bottom:10px}
 .essaitabs button{flex:1;padding:12px;font-weight:600}
 .essaitabs button.on{background:var(--primary);color:#fff}
 .essaitabs .sc{display:block;font-size:.8rem;font-weight:400;opacity:.85}
-.crit{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;margin-bottom:6px;user-select:none;cursor:pointer;border:2px solid transparent}
-.crit .box{width:30px;height:30px;border-radius:8px;border:2px solid #94a3b8;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem}
-.sect-ok{background:var(--okbg);border-radius:12px;padding:10px;margin-bottom:10px}
-.sect-ko{background:var(--kobg);border-radius:12px;padding:10px;margin-bottom:10px}
-.sect-ok .crit.on .box{background:var(--ok);border-color:var(--ok);color:#fff}
-.sect-ko .crit.on .box{background:var(--ko);border-color:var(--ko);color:#fff}
-.sect-ok .crit.on,.sect-ko .crit.on{background:rgba(255,255,255,.55)}
+.sect{border-radius:12px;padding:10px;margin-bottom:10px}
+.sect.okc{background:var(--okbg)} .sect.koc{background:var(--kobg)}
 .secth{font-weight:700;margin:2px 4px 8px;display:flex;justify-content:space-between}
+.crit{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;margin-bottom:4px;cursor:pointer;user-select:none}
+.crit .box{width:30px;height:30px;border-radius:8px;border:2px solid #94a3b8;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800}
+.okc .crit.on .box{background:var(--ok);border-color:var(--ok);color:#fff}
+.koc .crit.on .box{background:var(--ko);border-color:var(--ko);color:#fff}
+.crit.on{background:rgba(255,255,255,.55)}
 .measure{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .measure .m{background:#f6f8fc;border-radius:12px;padding:10px;text-align:center}
-.measure .m label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.measure label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
 .stepper{display:flex;align-items:center;justify-content:center;gap:8px}
 .stepper button{width:46px;height:46px;font-size:1.4rem;font-weight:700;padding:0}
 .stepper output{font-size:1.8rem;font-weight:700;min-width:40px}
-.timein{display:flex;align-items:center;justify-content:center;gap:6px}
-.timein input{width:90px;font-size:1.5rem;font-weight:700;text-align:center;padding:6px}
+.timein input{width:100px;font-size:1.5rem;font-weight:700;text-align:center;padding:6px}
 .scorebox{background:var(--mult);border-radius:12px;padding:12px;text-align:center;margin-bottom:10px}
-.scorebox .formula{font-size:.9rem;color:#334155}
 .scorebox .val{font-size:2.2rem;font-weight:800;color:var(--primary)}
 .multtable{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;font-size:.78rem}
 .multtable div{background:#fff;border-radius:6px;padding:4px}
 .multtable div.on{background:var(--primary);color:#fff;font-weight:700}
-
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:100;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:90vw}
-dialog{border:0;border-radius:16px;padding:18px;max-width:520px;width:92vw;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.total{background:#0f172a;color:#fff;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.total b{font-size:1.6rem}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.8rem;color:var(--muted);text-transform:uppercase}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:100}
+dialog{border:0;border-radius:16px;padding:18px;width:min(420px,92vw)}
 dialog::backdrop{background:rgba(15,23,42,.45)}
-.formgrid{display:grid;grid-template-columns:1fr auto;gap:10px 14px;align-items:center}
-.formgrid input[type=number]{width:100px}
-footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center}
+.formgrid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
 </style>
 </head>
 <body>
-<header class="app">
-  <div class="brand">
-    <img src="icons/icon-192.png" alt="">
-    <div><b>Acrovictor</b><div class="sig">Acrosport · vidéo différée · N'EPS by Quentin Delisle</div></div>
-    <span class="spacer"></span>
-    <select id="classSel" title="Classe"></select>
-  </div>
-  <nav class="tabs" id="tabs">
-    <button data-tab="classe" class="on">👥 Classe</button>
-    <button data-tab="groupes">🧩 Groupes</button>
-    <button data-tab="evaluer">🎥 Évaluer</button>
-    <button data-tab="resultats">📊 Résultats</button>
-    <button data-tab="reglages">⚙️ Réglages</button>
-  </nav>
+<header>
+  <img src="icons/icon-192.png" alt="">
+  <div><b>Acrovictor</b><div class="sig">Vidéo délay acrosport · N'EPS by Quentin Delisle</div></div>
+  <span class="spacer"></span>
+  <button id="btnHist">📋 Résultats</button>
+  <button id="btnSettings">⚙️</button>
 </header>
 
 <main>
-<!-- ============ CLASSE ============ -->
-<section id="tab-classe">
+<!-- ===== 1. NOMS ===== -->
+<section id="namesView">
   <div class="card">
-    <div class="row"><h2 style="margin:0">Classe</h2><span class="spacer"></span>
-      <button id="btnNewClass">➕ Nouvelle classe</button>
-      <button id="btnRenameClass">✏️ Renommer</button>
-      <button id="btnDelClass" class="danger">🗑️ Supprimer</button>
+    <h2>Noms des élèves <span class="muted small">(groupe de 4 à 7)</span></h2>
+    <div class="names">
+      <div class="namelist"><h3>🤸 Gymnastes</h3><div id="gymList"></div><button id="addGym">+ Ajouter un gymnaste</button></div>
+      <div class="namelist"><h3>👁️ Observateurs</h3><div id="obsList"></div><button id="addObs">+ Ajouter un observateur</button></div>
     </div>
-  </div>
-  <div class="card">
-    <h3>Importer la liste des élèves</h3>
-    <p class="muted small" style="margin-top:0">Fichier Excel (.xlsx, .xls), .ods ou .csv : <b>colonne A = Nom</b>, <b>colonne B = Prénom</b>. Une ligne d'en-tête éventuelle est ignorée. Les élèves s'affichent « Prénom + initiale du nom ».</p>
-    <div class="row">
-      <input type="file" id="fileImport" accept=".xlsx,.xls,.ods,.csv,.txt">
-      <label class="row small"><input type="checkbox" id="importReplace"> Remplacer la liste actuelle</label>
-    </div>
-    <details style="margin-top:10px"><summary class="small">…ou coller depuis un tableur / ajouter un élève</summary>
-      <textarea id="pasteArea" rows="4" placeholder="DUPONT	Léa&#10;MARTIN	Hugo" style="margin-top:8px"></textarea>
-      <div class="row" style="margin-top:8px"><button id="btnPaste">Importer le texte collé</button>
-        <span class="spacer"></span>
-        <input id="addNom" placeholder="Nom" style="width:130px"><input id="addPrenom" placeholder="Prénom" style="width:130px"><button id="btnAddStudent">Ajouter</button></div>
-    </details>
-  </div>
-  <div class="card">
-    <div class="row"><h3 style="margin:0">Élèves <span id="nbStudents" class="badge"></span></h3></div>
-    <div class="tablewrap"><table id="studentTable"></table></div>
+    <div class="row" style="margin-top:16px"><span id="nameStatus" class="small muted"></span><span class="spacer"></span>
+      <button class="primary" id="btnGo" style="font-size:1.1rem;padding:14px 22px">Passer en vidéo délay ▶</button></div>
   </div>
 </section>
 
-<!-- ============ GROUPES ============ -->
-<section id="tab-groupes" class="hidden">
-  <div class="card">
-    <div class="row"><h2 style="margin:0">Groupes (4 à 7 élèves)</h2><span class="spacer"></span>
-      <button id="btnAddGroup">➕ Groupe</button>
-      <label class="small">Taille <select id="autoSize"><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
-      <button id="btnAutoGroups">🎲 Répartition aléatoire</button>
+<!-- ===== 2. VIDÉO DÉLAY + FICHE ===== -->
+<section id="evalView" class="hidden">
+  <div class="videobox">
+    <div class="stage" id="stage">
+      <canvas id="disp" width="640" height="480"></canvas>
+      <div class="msg" id="stageMsg"><div>📷 Caméra arrêtée</div><button class="accent" id="btnCam">Activer la caméra</button></div>
+      <div class="msg hidden" id="bufMsg"></div>
+      <div class="ov tl" id="ovDelay">Délay 5 s</div>
+      <div class="ov tr" id="ovChrono">0,0 s</div>
+      <div class="ov bl hidden" id="ovPause">⏸ Relecture</div>
     </div>
-    <div id="unassigned" style="margin-top:12px"></div>
+    <input type="range" id="scrub" class="hidden" min="0" max="1000" value="1000">
+    <div class="vbar">
+      <button class="big accent" id="btnTop">▶ Top départ</button>
+      <button class="big primary" id="btnStop" disabled>■ Stop</button>
+      <button id="btnReset" title="Remettre le chrono à zéro">↺</button>
+      <button id="btnPause" title="Figer / relire">⏸</button>
+      <span class="spacer"></span>
+      <div class="delayctl"><button id="dMinus">−</button><span id="dVal">5 s</span><button id="dPlus">+</button></div>
+      <button id="btnMirror" title="Miroir">⇋</button>
+      <button id="btnSwitchCam" title="Changer de caméra">🔄</button>
+    </div>
+    <p class="muted small">Le chrono démarre à 0 quand le « Top départ » apparaît dans la vidéo délay. « Stop » (en regardant la vidéo) reporte le temps dans l'essai.</p>
   </div>
-  <div class="groups" id="groupList"></div>
+  <div class="card" id="panel"></div>
 </section>
 
-<!-- ============ EVALUER ============ -->
-<section id="tab-evaluer" class="hidden">
-  <div id="setupView">
-    <div class="card">
-      <h2>1 · Groupe</h2>
-      <div class="chips" id="setupGroups"></div>
-    </div>
-    <div class="card">
-      <h2>2 · Figure <span class="muted small">(chaque élève réalise 2 figures parmi les 3)</span></h2>
-      <div class="figs" id="setupFigs"></div>
-    </div>
-    <div class="card">
-      <h2>3 · Gymnastes et observateurs</h2>
-      <p class="muted small" style="margin-top:0" id="setupHint">Tous les membres sont observateurs par défaut. Touchez un élève : 👁️ observateur → 🤸 gymnaste → aucun rôle (absent).</p>
-      <div class="chips" id="setupMembers"></div>
-      <div class="row" style="margin-top:14px"><span id="setupStatus" class="small"></span><span class="spacer"></span>
-        <button class="primary big" id="btnStart">Commencer l'évaluation ▶</button></div>
-    </div>
-  </div>
-
-  <div id="evalView" class="hidden">
-    <div class="videobox">
-      <div class="stage" id="stage">
-        <canvas id="disp" width="640" height="480"></canvas>
-        <div class="msg" id="stageMsg">
-          <div>📷 Caméra arrêtée</div>
-          <button class="accent" id="btnCam">Activer la caméra</button>
-          <div class="small">Le chrono fonctionne aussi sans caméra (temps réel).</div>
-        </div>
-        <div class="ov tl" id="ovDelay">Différé 5 s</div>
-        <div class="ov tr" id="ovChrono">0,0 s</div>
-        <div class="ov bl hidden" id="ovPause">⏸ PAUSE – relecture</div>
-      </div>
-      <input type="range" id="scrub" class="hidden" min="0" max="1000" value="1000">
-      <div class="vbar">
-        <button class="big accent" id="btnTop">▶ Top départ</button>
-        <button class="big primary" id="btnStop" disabled>■ Stop</button>
-        <button id="btnReset" title="Remettre le chrono à zéro">↺</button>
-        <button id="btnPause" title="Figer / relire le différé">⏸</button>
-        <span class="spacer"></span>
-        <div class="delayctl" title="Retard de la vidéo"><button id="dMinus">−</button><span id="dVal">5 s</span><button id="dPlus">+</button></div>
-        <button id="btnMirror" title="Effet miroir">⇋</button>
-        <button id="btnSwitchCam" title="Changer de caméra">🔄</button>
-        <button id="btnCamOff" title="Couper la caméra">📷✕</button>
-      </div>
-      <p class="muted small" id="chronoHelp">Appuyez sur <b>Top départ</b> au signal de début : le chrono démarre à 0 quand ce moment apparaît dans la vidéo différée. Appuyez sur <b>Stop</b> en regardant le différé : le temps est reporté dans l'essai en cours.</p>
-    </div>
-
-    <div class="panel card" id="panel"></div>
-  </div>
-</section>
-
-<!-- ============ RESULTATS ============ -->
-<section id="tab-resultats" class="hidden">
+<!-- ===== RÉSULTATS ===== -->
+<section id="histView" class="hidden">
   <div class="card">
-    <div class="row"><h2 style="margin:0">Résultats</h2><span class="spacer"></span>
-      <button class="primary" id="btnExport">⬇️ Export Excel</button>
-      <button id="btnBackup">💾 Sauvegarde</button>
-      <label class="row"><button id="btnRestoreLbl" type="button" onclick="document.getElementById('fileRestore').click()">📂 Restaurer</button><input type="file" id="fileRestore" accept=".json" class="hidden"></label>
-    </div>
+    <div class="row"><h2 style="margin:0">Résultats enregistrés</h2><span class="spacer"></span>
+      <button class="primary" id="btnExport">⬇️ Export Excel</button><button id="btnBack">← Retour</button></div>
   </div>
-  <div class="card">
-    <h3>Par élève</h3>
-    <div class="tablewrap"><table id="resStudents"></table></div>
-  </div>
-  <div class="card">
-    <h3>Passages enregistrés</h3>
-    <div class="tablewrap"><table id="resPassages"></table></div>
-  </div>
-</section>
-
-<!-- ============ REGLAGES ============ -->
-<section id="tab-reglages" class="hidden">
-  <div class="card">
-    <h2>Notation</h2>
-    <div class="formgrid">
-      <span>Multiplicateur x1 en dessous de (s)</span><input type="number" step="0.5" id="sT1">
-      <span>Multiplicateur x1,5 jusqu'à (s) inclus</span><input type="number" step="0.5" id="sT2">
-      <span>Valeurs des multiplicateurs</span><span class="row"><input type="number" step="0.1" id="sM1" style="width:70px"><input type="number" step="0.1" id="sM2" style="width:70px"><input type="number" step="0.1" id="sM3" style="width:70px"></span>
-      <span>Valeur d'une pénalité (points retirés)</span><input type="number" step="0.5" id="sPen">
-      <span>Score final d'une figure</span><select id="sFinal"><option value="best">Meilleur des 2 essais</option><option value="last">Dernier essai réalisé</option><option value="avg">Moyenne des essais</option></select>
-      <span>Nombre de figures comptées par élève</span><input type="number" min="1" max="3" id="sMaxFig">
-      <span>Gymnastes – figure A / B / C</span><span class="row"><input type="number" min="1" max="7" id="sGA" style="width:60px"><input type="number" min="1" max="7" id="sGB" style="width:60px"><input type="number" min="1" max="7" id="sGC" style="width:60px"></span>
-    </div>
-    <p class="muted small">Règle : si un des 3 critères indispensables n'est pas validé, l'essai vaut 0. Sinon score = multiplicateur × nombre d'étapes − pénalités (minimum 0).</p>
-  </div>
-  <div class="card">
-    <h2>Vidéo</h2>
-    <div class="formgrid">
-      <span>Retard par défaut (s)</span><input type="number" min="1" max="30" id="sDelay">
-      <span>Images par seconde</span><select id="sFps"><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option></select>
-      <span>Résolution (largeur en px)</span><select id="sRes"><option>480</option><option>640</option><option>800</option><option>960</option><option>1280</option></select>
-    </div>
-  </div>
-  <div class="card">
-    <h2>Données</h2>
-    <p class="muted small">Tout est enregistré sur cet appareil (aucun envoi sur internet). Pensez à exporter ou sauvegarder en fin de séance.</p>
-    <button class="danger" id="btnWipeResults">Effacer les résultats de la classe</button>
-    <button class="danger" id="btnWipeAll">Tout réinitialiser</button>
-  </div>
+  <div class="card"><table id="histTable"></table>
+    <div class="row" style="margin-top:12px"><span class="spacer"></span><button class="danger" id="btnWipe">Tout effacer</button></div></div>
 </section>
 </main>
-<footer>Acrovictor · N'EPS by Quentin Delisle · fonctionne hors ligne</footer>
+<footer>Acrovictor · N'EPS by Quentin Delisle</footer>
 
-<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+<dialog id="dlgSet"><form method="dialog">
+  <h3>Réglages vidéo</h3>
+  <div class="formgrid">
+    <span>Délay (secondes)</span><input type="number" id="sDelay" min="1" max="30" style="width:90px">
+    <span>Images / seconde</span><select id="sFps"><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option></select>
+    <span>Qualité (largeur px)</span><select id="sRes"><option>480</option><option>640</option><option>800</option><option>960</option><option>1280</option></select>
+  </div>
+  <div class="row" style="margin-top:14px"><span class="spacer"></span><button class="primary" value="ok">OK</button></div>
+</form></dialog>
 
 <script src="lib/xlsx.full.min.js"></script>
 <script>
 "use strict";
-/* ===================== DONNÉES ===================== */
-const FIGS = {
-  A:{img:'img/figure-a.png', label:'Figure A', desc:'Duo (P1 / P2)'},
-  B:{img:'img/figure-b.png', label:'Figure B', desc:'Trio'},
-  C:{img:'img/figure-c.png', label:'Figure C', desc:'Trio'}
-};
-const INDISP = ['La figure est tenue 3 secondes',"Aucun des gymnastes n'a marché pour se mettre en place",'Le dos des gymnastes est droit'];
-const PENS = ['Ajustements pendant le montage / démontage','Communication inutile','Gestes parasites (main dans les cheveux, …)'];
-const KEY = 'acrovictor.v1';
-const DEF_SETTINGS = {delay:5,fps:15,res:640,mirror:false,t1:10,t2:14,m1:1,m2:1.5,m3:2,penalty:1,finalMode:'best',maxFig:2,gym:{A:2,B:3,C:3}};
+/* ===== Fiche ===== */
+const FIGS={A:'img/figure-a.png',B:'img/figure-b.png',C:'img/figure-c.png'};
+const INDISP=['La figure est tenue 3 secondes',"Aucun des gymnastes n'a marché pour se mettre en place",'Le dos des gymnastes est droit'];
+const PENS=['Ajustements pendant le montage / démontage','Communication inutile','Gestes parasites (main dans les cheveux, …)'];
+/* Multiplicateur : 5 à 10 s → x1 ; 10 à 14 s → x1,5 ; + de 14 s → x2 */
+function multFor(t){ if(t==null||isNaN(t)) return null; return t<10?1:(t<=14?1.5:2); }
 
-let S = load();
-function load(){
-  try{
-    const s = JSON.parse(localStorage.getItem(KEY));
-    if(s && s.classes){ s.settings = Object.assign({},DEF_SETTINGS,s.settings||{}); s.settings.gym = Object.assign({},DEF_SETTINGS.gym,(s.settings||{}).gym||{}); return s; }
-  }catch(e){}
-  const c = {id:uid(),name:'Ma classe',students:[]};
-  return {classes:[c],currentClassId:c.id,groups:[],passages:[],settings:structuredClone(DEF_SETTINGS)};
-}
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('⚠️ Sauvegarde impossible : '+e.message); } }
-function uid(){ return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
-const $ = s=>document.querySelector(s);
-const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt = (n,d=1)=> (n==null||isNaN(n)) ? '–' : Number(n).toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:0});
-const fmtT = n => n==null ? '–' : Number(n).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' s';
-function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+const KEY='acrovictor.v2';
+let S=load();
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.results) return s;}catch(e){} return {results:[],settings:{delay:5,fps:15,res:640,mirror:false}}; }
+function save(){ localStorage.setItem(KEY,JSON.stringify(S)); }
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null?'–':Number(n).toLocaleString('fr-FR',{maximumFractionDigits:2});
+const fmtT=n=>n==null?'–':Number(n).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' s';
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400);}
 
-function cls(){ return S.classes.find(c=>c.id===S.currentClassId) || S.classes[0]; }
-function stu(id){ for(const c of S.classes){ const s=c.students.find(x=>x.id===id); if(s) return s; } return null; }
-function classGroups(){ return S.groups.filter(g=>g.classId===cls().id); }
-function classPassages(){ return S.passages.filter(p=>p.classId===cls().id); }
-
-/* Prénom + initiale (désambiguïsée si doublon) */
-let nameCache = {};
-function buildNames(){
-  nameCache = {};
-  for(const c of S.classes){
-    const list = c.students;
-    let len = new Map(list.map(s=>[s.id,1]));
-    for(let pass=0;pass<12;pass++){
-      const keys = new Map();
-      list.forEach(s=>{ const k=label(s,len.get(s.id)).toLowerCase(); keys.set(k,(keys.get(k)||[]).concat(s.id)); });
-      let changed=false;
-      keys.forEach(ids=>{ if(ids.length>1) ids.forEach(id=>{ const s=list.find(x=>x.id===id); if(len.get(id)<(s.nom||'').length){len.set(id,len.get(id)+1);changed=true;} }); });
-      if(!changed) break;
-    }
-    list.forEach(s=>nameCache[s.id]=label(s,len.get(s.id)));
-  }
-  function label(s,n){ const nom=(s.nom||'').trim(); const ini = nom ? nom.slice(0,n).charAt(0).toUpperCase()+nom.slice(1,n).toLowerCase()+'.' : ''; return ((s.prenom||'').trim()+' '+ini).trim(); }
-}
-function dn(id){ return nameCache[id] || '?'; }
-
-/* ===================== CALCUL ===================== */
-function multFor(t){
-  const st=S.settings; if(t==null||isNaN(t)) return null;
-  if(t < st.t1) return st.m1;
-  if(t <= st.t2) return st.m2;
-  return st.m3;
-}
+/* ===== Calcul ===== */
+const newEssai=()=>({done:false,time:null,steps:0,indisp:[false,false,false],pen:[false,false,false]});
 function essaiScore(e){
-  if(!e || !e.done) return null;
-  const valid = e.indisp.every(Boolean);
-  const nPen = e.pen.filter(Boolean).length;
-  const m = multFor(e.time);
-  if(!valid) return {valid:false,score:0,m,nPen};
-  if(m==null) return {valid:true,score:null,m,nPen};
-  const raw = m*(e.steps||0) - nPen*S.settings.penalty;
-  return {valid:true,score:Math.max(0,Math.round(raw*100)/100),m,nPen};
+  const valid=e.indisp.every(Boolean), nPen=e.pen.filter(Boolean).length, m=multFor(e.time);
+  if(!valid) return {valid,score:0,m,nPen};
+  if(m==null) return {valid,score:null,m,nPen};
+  return {valid,score:Math.max(0,m*e.steps-nPen),m,nPen};
 }
-function finalScore(p){
-  const sc = p.essais.map(essaiScore).filter(x=>x && x.score!=null).map(x=>x.score);
-  if(!sc.length) return null;
-  const mode=S.settings.finalMode;
-  if(mode==='last') return sc[sc.length-1];
-  if(mode==='avg') return Math.round(sc.reduce((a,b)=>a+b,0)/sc.length*100)/100;
-  return Math.max(...sc);
-}
-function newEssai(){ return {done:false,time:null,steps:0,indisp:[false,false,false],pen:[false,false,false]}; }
-function studentSummary(sid){
-  const ps = classPassages().filter(p=>p.gymnasts.includes(sid));
-  const byFig = {};
-  ps.forEach(p=>{ const f=finalScore(p); if(f==null) return; if(byFig[p.figure]==null || f>byFig[p.figure]) byFig[p.figure]=f; });
-  const figs = Object.entries(byFig).sort((a,b)=>b[1]-a[1]);
-  const kept = figs.slice(0,S.settings.maxFig);
-  const total = kept.length ? Math.round(kept.reduce((a,[,v])=>a+v,0)*100)/100 : null;
-  const obs = classPassages().filter(p=>p.observers.includes(sid)).length;
-  return {byFig,figs,kept,total,obs,done:new Set(ps.map(p=>p.figure))};
-}
+function figFinal(f){ const sc=f.essais.filter(e=>e.done).map(e=>essaiScore(e).score).filter(x=>x!=null); return sc.length?Math.max(...sc):null; }
+function teamTotal(T){ const v=['A','B','C'].map(k=>figFinal(T.figs[k])).filter(x=>x!=null).sort((a,b)=>b-a).slice(0,2); return v.length?v.reduce((a,b)=>a+b,0):null; }
+function figsDone(T){ return ['A','B','C'].filter(k=>T.figs[k].essais.some(e=>e.done)); }
 
-/* ===================== NAVIGATION ===================== */
-let curTab='classe';
-$('#tabs').addEventListener('click',e=>{ const b=e.target.closest('button[data-tab]'); if(b) showTab(b.dataset.tab); });
-function showTab(t){
-  if(curTab==='evaluer' && t!=='evaluer' && !$('#evalView').classList.contains('hidden')){
-    if(!confirm('Quitter l\'évaluation en cours ? Les essais non enregistrés seront perdus.')) return;
-    closeEval(false);
+/* ===== 1. Noms ===== */
+let names={gym:['','',''],obs:['']};
+function renderNames(){
+  for(const k of ['gym','obs']){
+    $('#'+k+'List').innerHTML=names[k].map((v,i)=>`<input data-k="${k}" data-i="${i}" value="${esc(v)}" placeholder="${k==='gym'?'Gymnaste':'Observateur'} ${i+1}" autocomplete="off">`).join('');
   }
-  curTab=t;
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
-  document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-'+t));
-  render();
+  status();
 }
-function render(){
-  buildNames(); renderClassSel();
-  if(curTab==='classe') renderClasse();
-  if(curTab==='groupes') renderGroupes();
-  if(curTab==='evaluer' && $('#evalView').classList.contains('hidden')) renderSetup();
-  if(curTab==='resultats') renderResultats();
-  if(curTab==='reglages') renderReglages();
+function status(){
+  const g=names.gym.filter(x=>x.trim()).length, o=names.obs.filter(x=>x.trim()).length, n=g+o;
+  $('#nameStatus').textContent=`${g} gymnaste(s) · ${o} observateur(s) · ${n} élèves${n&&(n<4||n>7)?' ⚠️ groupe de 4 à 7':''}`;
+  $('#btnGo').disabled=!g;
 }
-function renderClassSel(){
-  $('#classSel').innerHTML = S.classes.map(c=>`<option value="${c.id}" ${c.id===cls().id?'selected':''}>${esc(c.name)}</option>`).join('');
-}
-$('#classSel').addEventListener('change',e=>{ if(!$('#evalView').classList.contains('hidden')){ e.target.value=cls().id; toast('Terminez l\'évaluation en cours'); return;} S.currentClassId=e.target.value; save(); setup={}; render(); });
+document.addEventListener('input',e=>{ const t=e.target; if(t.dataset.k){ names[t.dataset.k][+t.dataset.i]=t.value; status(); } });
+$('#addGym').onclick=()=>{ names.gym.push(''); renderNames(); $('#gymList').lastElementChild.focus(); };
+$('#addObs').onclick=()=>{ names.obs.push(''); renderNames(); $('#obsList').lastElementChild.focus(); };
+$('#btnGo').onclick=()=>{
+  T={id:Date.now().toString(36),date:new Date().toISOString(),gym:names.gym.map(s=>s.trim()).filter(Boolean),obs:names.obs.map(s=>s.trim()).filter(Boolean),
+     figs:{A:{essais:[newEssai(),newEssai()],amelio:''},B:{essais:[newEssai(),newEssai()],amelio:''},C:{essais:[newEssai(),newEssai()],amelio:''}}};
+  curFig='A'; curEssai=0; chronoReset(); show('eval'); renderPanel();
+};
+function show(v){ ['names','eval','hist'].forEach(x=>$('#'+x+'View').classList.toggle('hidden',x!==v)); if(v!=='eval') camStop(); window.scrollTo(0,0); }
 
-/* ===================== CLASSE ===================== */
-function renderClasse(){
-  const c=cls();
-  $('#nbStudents').textContent = c.students.length+' élève'+(c.students.length>1?'s':'');
-  const gOf = id=>{ const g=classGroups().find(g=>g.members.includes(id)); return g?g.name:''; };
-  const sorted=[...c.students].sort((a,b)=>(a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr'));
-  $('#studentTable').innerHTML = c.students.length ? `<tr><th>Affichage</th><th>Nom</th><th>Prénom</th><th>Groupe</th><th></th></tr>` +
-    sorted.map(s=>`<tr><td><b>${esc(dn(s.id))}</b></td><td>${esc(s.nom)}</td><td>${esc(s.prenom)}</td><td>${esc(gOf(s.id))}</td><td class="num"><button class="ghost" data-delstu="${s.id}" title="Supprimer">🗑️</button></td></tr>`).join('')
-    : `<tr><td class="muted">Aucun élève. Importez un fichier ou collez une liste.</td></tr>`;
-}
-$('#studentTable').addEventListener('click',e=>{
-  const b=e.target.closest('[data-delstu]'); if(!b) return;
-  const id=b.dataset.delstu; if(!confirm('Supprimer '+dn(id)+' ?')) return;
-  const c=cls(); c.students=c.students.filter(s=>s.id!==id);
-  S.groups.forEach(g=>g.members=g.members.filter(m=>m!==id));
-  save(); render();
-});
-function importRows(rows){
-  rows = rows.map(r=>[String(r[0]??'').trim(), String(r[1]??'').trim()]).filter(r=>r[0]||r[1]);
-  if(rows.length && /^nom/i.test(rows[0][0]) && /pr[ée]nom/i.test(rows[0][1])) rows.shift();
-  else if(rows.length && /^(nom|name)$/i.test(rows[0][0])) rows.shift();
-  if(!rows.length){ toast('Aucun élève trouvé (colonne A = Nom, B = Prénom)'); return; }
-  const c=cls();
-  if($('#importReplace').checked){
-    if(c.students.length && !confirm('Remplacer les '+c.students.length+' élèves actuels ? Les groupes de cette classe seront vidés.')) return;
-    c.students=[]; S.groups.forEach(g=>{ if(g.classId===c.id) g.members=[]; });
-  }
-  let added=0;
-  rows.forEach(([nom,prenom])=>{
-    if(c.students.some(s=>s.nom.toLowerCase()===nom.toLowerCase() && s.prenom.toLowerCase()===prenom.toLowerCase())) return;
-    c.students.push({id:uid(),nom,prenom}); added++;
-  });
-  save(); render(); toast(added+' élève(s) importé(s)');
-}
-$('#fileImport').addEventListener('change',async e=>{
-  const f=e.target.files[0]; if(!f) return;
-  try{
-    const buf = await f.arrayBuffer();
-    let wb;
-    if(/\.(csv|txt)$/i.test(f.name)){
-      let txt = new TextDecoder('utf-8').decode(buf);
-      if(txt.includes('�')) txt = new TextDecoder('windows-1252').decode(buf);
-      wb = XLSX.read(txt,{type:'string',FS: txt.split('\n')[0].includes(';')?';':undefined});
-    } else wb = XLSX.read(buf,{type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    importRows(XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false}));
-    if(cls().name==='Ma classe' && wb.SheetNames[0] && !/^(sheet|feuil)/i.test(wb.SheetNames[0])){ cls().name=wb.SheetNames[0]; save(); render(); }
-  }catch(err){ toast('Import impossible : '+err.message); }
-  e.target.value='';
-});
-$('#btnPaste').onclick=()=>{
-  const rows = $('#pasteArea').value.split(/\r?\n/).map(l=>l.split(/\t|;|,/));
-  importRows(rows); $('#pasteArea').value='';
-};
-$('#btnAddStudent').onclick=()=>{
-  const nom=$('#addNom').value.trim(), prenom=$('#addPrenom').value.trim();
-  if(!nom && !prenom) return;
-  cls().students.push({id:uid(),nom,prenom}); $('#addNom').value=''; $('#addPrenom').value=''; save(); render();
-};
-$('#btnNewClass').onclick=()=>{ const n=prompt('Nom de la classe (ex. 2nde 2)'); if(!n) return; const c={id:uid(),name:n.trim(),students:[]}; S.classes.push(c); S.currentClassId=c.id; save(); render(); };
-$('#btnRenameClass').onclick=()=>{ const n=prompt('Nouveau nom',cls().name); if(!n) return; cls().name=n.trim(); save(); render(); };
-$('#btnDelClass').onclick=()=>{
-  if(S.classes.length<2){ toast('Il faut au moins une classe'); return; }
-  const c=cls(); if(!confirm('Supprimer la classe « '+c.name+' », ses groupes et ses résultats ?')) return;
-  S.classes=S.classes.filter(x=>x.id!==c.id); S.groups=S.groups.filter(g=>g.classId!==c.id); S.passages=S.passages.filter(p=>p.classId!==c.id);
-  S.currentClassId=S.classes[0].id; save(); render();
-};
-
-/* ===================== GROUPES ===================== */
-function renderGroupes(){
-  const gs=classGroups(), c=cls();
-  const assigned=new Set(gs.flatMap(g=>g.members));
-  const free=c.students.filter(s=>!assigned.has(s.id)).sort((a,b)=>dn(a.id).localeCompare(dn(b.id),'fr'));
-  $('#unassigned').innerHTML = free.length ? `<div class="small muted" style="margin-bottom:6px">Sans groupe (${free.length}) — glissez ou utilisez « Ajouter » dans un groupe :</div><div class="chips">${free.map(s=>`<span class="chip" draggable="true" data-sid="${s.id}">${esc(dn(s.id))}</span>`).join('')}</div>` : (c.students.length?'<span class="badge ok">Tous les élèves ont un groupe</span>':'<span class="muted">Importez d\'abord la classe.</span>');
-  $('#groupList').innerHTML = gs.map(g=>{
-    const n=g.members.length, okSize=n>=4&&n<=7;
-    return `<div class="card gcard" data-gid="${g.id}">
-      <h3><input class="gname" value="${esc(g.name)}" data-gname="${g.id}"><span class="badge ${okSize?'ok':'warn'}">${n} élève${n>1?'s':''}${okSize?'':' (4–7)'}</span></h3>
-      <div class="chips" style="min-height:40px">${g.members.map(id=>`<span class="chip" draggable="true" data-sid="${id}" data-from="${g.id}">${esc(dn(id))}<span class="x" data-rm="${id}">×</span></span>`).join('')}</div>
-      <div class="row" style="margin-top:10px"><button data-addto="${g.id}">➕ Ajouter</button><span class="spacer"></span><button class="danger" data-delg="${g.id}">Supprimer</button></div>
-    </div>`;}).join('') || '<p class="muted">Aucun groupe. Créez-en un ou lancez la répartition aléatoire.</p>';
-}
-$('#btnAddGroup').onclick=()=>{ const n=classGroups().length+1; S.groups.push({id:uid(),classId:cls().id,name:'Groupe '+n,members:[]}); save(); render(); };
-$('#btnAutoGroups').onclick=()=>{
-  const c=cls(); if(!c.students.length){ toast('Aucun élève'); return; }
-  if(classGroups().length && !confirm('Remplacer les groupes existants de cette classe ?')) return;
-  const size=+$('#autoSize').value; const ids=c.students.map(s=>s.id).sort(()=>Math.random()-.5);
-  let ng=Math.max(1,Math.round(ids.length/size));
-  while(ng>1 && ids.length/ng<4) ng--;
-  while(ids.length/ng>7) ng++;
-  S.groups=S.groups.filter(g=>g.classId!==c.id);
-  const gs=[...Array(ng)].map((_,i)=>({id:uid(),classId:c.id,name:'Groupe '+(i+1),members:[]}));
-  ids.forEach((id,i)=>gs[i%ng].members.push(id));
-  S.groups.push(...gs); save(); render();
-};
-$('#groupList').addEventListener('click',e=>{
-  const rm=e.target.closest('[data-rm]'); if(rm){ const g=S.groups.find(g=>g.id===rm.closest('[data-gid]').dataset.gid); g.members=g.members.filter(m=>m!==rm.dataset.rm); save(); render(); return; }
-  const del=e.target.closest('[data-delg]'); if(del){ const g=S.groups.find(x=>x.id===del.dataset.delg); if(confirm('Supprimer '+g.name+' ?')){ S.groups=S.groups.filter(x=>x!==g); save(); render(); } return; }
-  const add=e.target.closest('[data-addto]'); if(add) pickStudents(add.dataset.addto);
-});
-$('#groupList').addEventListener('change',e=>{ const i=e.target.closest('[data-gname]'); if(i){ S.groups.find(g=>g.id===i.dataset.gname).name=i.value.trim()||'Groupe'; save(); } });
-// glisser-déposer
-let dragSid=null;
-document.addEventListener('dragstart',e=>{ const c=e.target.closest&&e.target.closest('[data-sid]'); if(c&&curTab==='groupes'){ dragSid=c.dataset.sid; e.dataTransfer.setData('text/plain',dragSid);} });
-$('#groupList').addEventListener('dragover',e=>{ if(e.target.closest('[data-gid]')) e.preventDefault(); });
-$('#groupList').addEventListener('drop',e=>{
-  const gc=e.target.closest('[data-gid]'); if(!gc||!dragSid) return; e.preventDefault();
-  S.groups.forEach(g=>g.members=g.members.filter(m=>m!==dragSid));
-  S.groups.find(g=>g.id===gc.dataset.gid).members.push(dragSid); dragSid=null; save(); render();
-});
-function pickStudents(gid){
-  const g=S.groups.find(x=>x.id===gid);
-  const inOther=new Map(); classGroups().forEach(x=>x.members.forEach(m=>inOther.set(m,x)));
-  const list=[...cls().students].sort((a,b)=>dn(a.id).localeCompare(dn(b.id),'fr'));
-  openDialog(`<h3>Ajouter à ${esc(g.name)}</h3><div class="chips" id="pick">${list.map(s=>{const o=inOther.get(s.id); const mine=o===g; return `<span class="chip ${mine?'sel':''}" data-p="${s.id}">${esc(dn(s.id))}${o&&!mine?`<span class="tag">${esc(o.name)}</span>`:''}</span>`;}).join('')}</div>
-    <div class="row" style="margin-top:14px"><span class="spacer"></span><button value="cancel">Annuler</button><button class="primary" value="ok">Valider</button></div>`,
-    form=>{ form.querySelector('#pick').addEventListener('click',e=>{const c=e.target.closest('[data-p]'); if(c) c.classList.toggle('sel');}); },
-    (rv,form)=>{ if(rv!=='ok') return; const sel=[...form.querySelectorAll('#pick .sel')].map(c=>c.dataset.p);
-      classGroups().forEach(x=>{ if(x!==g) x.members=x.members.filter(m=>!sel.includes(m)); });
-      g.members=sel; save(); render(); });
-}
-function openDialog(html,onOpen,onClose){
-  const d=$('#dlg'), f=$('#dlgForm'); f.innerHTML=html; onOpen&&onOpen(f);
-  d.onclose=()=>onClose&&onClose(d.returnValue,f); d.returnValue=''; d.showModal();
-}
-
-/* ===================== EVALUER : PRÉPARATION ===================== */
-let setup={};  // {groupId, figure, roles:{sid:'g'|'o'}}
-function renderSetup(){
-  const gs=classGroups();
-  if(setup.groupId && !gs.some(g=>g.id===setup.groupId)) setup={};
-  $('#setupGroups').innerHTML = gs.length ? gs.map(g=>`<span class="chip ${g.id===setup.groupId?'sel':''}" data-g="${g.id}">${esc(g.name)} <span class="tag">${g.members.length}</span></span>`).join('') : '<span class="muted">Créez d\'abord des groupes (onglet Groupes).</span>';
-  $('#setupFigs').innerHTML = Object.entries(FIGS).map(([k,f])=>`<div class="fig ${setup.figure===k?'sel':''}" data-f="${k}"><img src="${f.img}" alt="${f.label}"><b>${k}</b><span class="small muted">${f.desc} · ${S.settings.gym[k]} gymnastes</span></div>`).join('');
-  const g=gs.find(x=>x.id===setup.groupId);
-  if(!g){ $('#setupMembers').innerHTML='<span class="muted">Choisissez un groupe.</span>'; $('#setupStatus').textContent=''; $('#btnStart').disabled=true; return; }
-  setup.roles=setup.roles||{};
-  $('#setupMembers').innerHTML = g.members.map(id=>{
-    const r=setup.roles[id]; const sum=studentSummary(id);
-    const tags=[...sum.done].sort().map(f=>`<span class="tag">${f}${sum.byFig[f]!=null?' · '+fmt(sum.byFig[f]):''}</span>`).join('');
-    return `<span class="chip ${r==='g'?'sel':r==='o'?'obs':''}" data-m="${id}">${r==='g'?'🤸 ':r==='o'?'👁️ ':''}${esc(dn(id))}${tags}</span>`;
-  }).join('');
-  const nG=Object.values(setup.roles).filter(r=>r==='g').length, nO=Object.values(setup.roles).filter(r=>r==='o').length;
-  const need=setup.figure?S.settings.gym[setup.figure]:null;
-  let msg=[], ok=true;
-  if(!setup.figure){ msg.push('Choisissez une figure.'); ok=false; }
-  else if(nG!==need){ msg.push(`🤸 ${nG}/${need} gymnastes`); ok=false; } else msg.push(`🤸 ${nG} gymnastes`);
-  if(nO<1){ msg.push('👁️ au moins 1 observateur'); ok=false; } else msg.push(`👁️ ${nO} observateur${nO>1?'s':''}`);
-  if(setup.figure){
-    const warn=Object.entries(setup.roles).filter(([id,r])=>r==='g').map(([id])=>{const s=studentSummary(id); if(s.done.has(setup.figure)) return dn(id)+' a déjà fait '+setup.figure; if(s.done.size>=S.settings.maxFig) return dn(id)+' a déjà '+s.done.size+' figures'; return null;}).filter(Boolean);
-    if(warn.length) msg.push('⚠️ '+warn.join(' · '));
-  }
-  $('#setupStatus').innerHTML=msg.join(' &nbsp; '); $('#btnStart').disabled=!ok;
-}
-$('#setupGroups').addEventListener('click',e=>{ const c=e.target.closest('[data-g]'); if(!c) return; setup={groupId:c.dataset.g,figure:setup.figure,roles:{}}; autoRoles(); renderSetup(); });
-$('#setupFigs').addEventListener('click',e=>{ const c=e.target.closest('[data-f]'); if(!c) return; setup.figure=c.dataset.f; autoRoles(); renderSetup(); });
-$('#setupMembers').addEventListener('click',e=>{
-  const c=e.target.closest('[data-m]'); if(!c) return; const id=c.dataset.m; const r=setup.roles[id];
-  setup.roles[id] = r==='o' ? 'g' : r==='g' ? undefined : 'o';
-  if(!setup.roles[id]) delete setup.roles[id];
-  renderSetup();
-});
-function autoRoles(){
-  // tous observateurs par défaut ; les gymnastes sont choisis par le prof
-  const g=classGroups().find(x=>x.id===setup.groupId); if(!g) return;
-  const roles=setup.roles||{};
-  g.members.forEach(id=>{ if(!roles[id]) roles[id]='o'; });
-  setup.roles=roles;
-}
-$('#btnStart').onclick=()=>{
-  const g=classGroups().find(x=>x.id===setup.groupId);
-  const p={id:uid(),classId:cls().id,groupId:g.id,groupName:g.name,figure:setup.figure,
-    gymnasts:g.members.filter(id=>setup.roles[id]==='g'),observers:g.members.filter(id=>setup.roles[id]==='o'),
-    date:new Date().toISOString(),essais:[newEssai(),newEssai()],amelioration:''};
-  openEval(p,true);
-};
-
-/* ===================== EVALUER : SAISIE ===================== */
-let P=null, isNew=false, curEssai=0;
-function openEval(p,nouveau){
-  P=structuredClone(p); isNew=nouveau; curEssai = P.essais[0].done && !P.essais[1].done && !nouveau ? 1 : 0;
-  if(curTab!=='evaluer'){ curTab='evaluer'; document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==='evaluer')); document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-evaluer')); }
-  $('#setupView').classList.add('hidden'); $('#evalView').classList.remove('hidden');
-  chronoReset(); renderPanel(); window.scrollTo(0,0);
-}
-function closeEval(doSave){
-  if(doSave){
-    P.essais.forEach(e=>{ if(!e.done && (e.time!=null || e.steps>0 || e.indisp.some(Boolean) || e.pen.some(Boolean))) e.done=true; });
-    const i=S.passages.findIndex(x=>x.id===P.id);
-    if(i>=0) S.passages[i]=P; else S.passages.push(P);
-    save(); toast('Passage enregistré ✔');
-  }
-  camStop(); P=null; setup={groupId:setup.groupId,figure:null,roles:{}}; autoRoles();
-  $('#evalView').classList.add('hidden'); $('#setupView').classList.remove('hidden');
-  render();
-}
-function E(){ return P.essais[curEssai]; }
+/* ===== 2. Fiche ===== */
+let T=null, curFig='A', curEssai=0;
 function renderPanel(){
-  const st=S.settings, e=E(), sc=essaiScore({...e,done:true});
-  const m=multFor(e.time);
-  const essTab=i=>{ const s=essaiScore(P.essais[i]); return `<button data-ess="${i}" class="${i===curEssai?'on':''}">Essai ${i+1}<span class="sc">${P.essais[i].done? (s.valid? (s.score!=null? fmt(s.score,2)+' pts':'temps ?') :'non validé · 0') :'à faire'}</span></button>`; };
-  const fin=finalScore(P);
-  let formula;
-  if(!sc.valid) formula='Critère indispensable manquant → figure non validée';
-  else if(m==null) formula='Saisissez le temps (chrono)';
-  else formula=`x${fmt(m,2)} × ${e.steps} étape${e.steps>1?'s':''}${sc.nPen?` − ${sc.nPen} pénalité${sc.nPen>1?'s':''}${st.penalty!==1?' × '+fmt(st.penalty,2):''}`:''}`;
-  $('#panel').innerHTML = `
-    <div class="who"><img src="${FIGS[P.figure].img}" alt=""><div>
-      <b>${esc(P.groupName)} · Figure ${P.figure}</b>
-      <div class="small">🤸 ${P.gymnasts.map(id=>esc(dn(id))).join(', ')}</div>
-      <div class="small muted">👁️ ${P.observers.map(id=>esc(dn(id))).join(', ')}</div>
-    </div></div>
+  const F=T.figs[curFig], e=F.essais[curEssai], sc=essaiScore(e), m=sc.m, done=figsDone(T);
+  const figTab=k=>{const f=figFinal(T.figs[k]);return `<div class="figtab ${k===curFig?'on':''}" data-fig="${k}"><img src="${FIGS[k]}" alt=""><b>${k}</b><span class="sc">${f!=null?fmt(f)+' pts':(done.includes(k)?'…':'—')}</span></div>`;};
+  const essTab=i=>{const x=F.essais[i],s=essaiScore(x);return `<button data-ess="${i}" class="${i===curEssai?'on':''}">Essai ${i+1}<span class="sc">${x.done?(s.valid?(s.score!=null?fmt(s.score)+' pts':'temps ?'):'non validé · 0'):'à faire'}</span></button>`;};
+  let formula = !sc.valid ? 'Critère indispensable manquant → 0' : (m==null ? 'Temps à mesurer' : `x${fmt(m)} × ${e.steps} étape${e.steps>1?'s':''}${sc.nPen?` − ${sc.nPen} pénalité${sc.nPen>1?'s':''}`:''}`);
+  const tot=teamTotal(T);
+  $('#panel').innerHTML=`
+    <div class="small"><b>🤸 ${T.gym.map(esc).join(', ')}</b><br><span class="muted">👁️ ${T.obs.map(esc).join(', ')||'—'}</span></div>
+    <p class="small muted" style="margin:8px 0">Réaliser 2 figures parmi les 3${done.length>2?' — ⚠️ 3 figures : les 2 meilleures sont retenues':''}</p>
+    <div class="figtabs">${figTab('A')}${figTab('B')}${figTab('C')}</div>
     <div class="essaitabs">${essTab(0)}${essTab(1)}</div>
-    <div class="sect-ok"><div class="secth"><span>Indispensable !</span><span class="badge ${e.indisp.every(Boolean)?'ok':'ko'}">${e.indisp.filter(Boolean).length}/3</span></div>
-      ${INDISP.map((t,i)=>`<div class="crit ${e.indisp[i]?'on':''}" data-ind="${i}"><span class="box">${e.indisp[i]?'✓':''}</span><span>${esc(t)}</span></div>`).join('')}</div>
-    <div class="sect-ko"><div class="secth"><span>Pénalités (+1 point)</span><span class="badge ${sc.nPen?'ko':''}">${sc.nPen}</span></div>
-      ${PENS.map((t,i)=>`<div class="crit ${e.pen[i]?'on':''}" data-pen="${i}"><span class="box">${e.pen[i]?'+1':''}</span><span>${esc(t)}</span></div>`).join('')}</div>
+    <div class="sect okc"><div class="secth"><span>Indispensable !</span><span>${e.indisp.filter(Boolean).length}/3</span></div>
+      ${INDISP.map((t,i)=>`<div class="crit ${e.indisp[i]?'on':''}" data-ind="${i}"><span class="box">${e.indisp[i]?'✓':''}</span>${esc(t)}</div>`).join('')}</div>
+    <div class="sect koc"><div class="secth"><span>Pénalités (+1 point)</span><span>${sc.nPen}</span></div>
+      ${PENS.map((t,i)=>`<div class="crit ${e.pen[i]?'on':''}" data-pen="${i}"><span class="box">${e.pen[i]?'+1':''}</span>${esc(t)}</div>`).join('')}</div>
     <div class="measure">
-      <div class="m"><label>Temps</label><div class="timein"><input id="inTime" type="text" inputmode="decimal" value="${e.time!=null?String(e.time).replace('.',','):''}" placeholder="–"><span>s</span></div></div>
+      <div class="m"><label>Temps</label><div class="timein"><input id="inTime" inputmode="decimal" value="${e.time!=null?String(e.time).replace('.',','):''}" placeholder="–"> s</div></div>
       <div class="m"><label>Nombre d'étapes</label><div class="stepper"><button data-step="-1">−</button><output>${e.steps}</output><button data-step="1">+</button></div></div>
     </div>
-    <div class="scorebox">
-      <div class="formula">${formula}</div>
-      <div class="val">${sc.score!=null?fmt(sc.score,2):'–'} <span class="small">pts</span></div>
-      <div class="multtable">
-        <div class="${m===st.m1&&e.time!=null?'on':''}">&lt; ${fmt(st.t1)} s<br>x${fmt(st.m1,2)}</div>
-        <div class="${m===st.m2&&e.time!=null?'on':''}">${fmt(st.t1)} à ${fmt(st.t2)} s<br>x${fmt(st.m2,2)}</div>
-        <div class="${m===st.m3&&e.time!=null?'on':''}">+ de ${fmt(st.t2)} s<br>x${fmt(st.m3,2)}</div>
-      </div>
-      ${e.time!=null&&e.time<5?'<div class="small" style="color:#9a5b00;margin-top:6px">⚠️ Temps inférieur à 5 s</div>':''}
+    <div class="scorebox"><div class="small">Score : multiplicateur × nb d'étapes</div><div>${formula}</div>
+      <div class="val">${sc.score!=null?fmt(sc.score):'–'} <span class="small">pts</span></div>
+      <div class="multtable"><div class="${m===1?'on':''}">5 à 10 s<br>x1</div><div class="${m===1.5?'on':''}">10 à 14 s<br>x1,5</div><div class="${m===2?'on':''}">+ de 14 s<br>x2</div></div>
+      ${e.time!=null&&e.time<5?'<div class="small" style="color:#9a5b00;margin-top:6px">⚠️ moins de 5 s</div>':''}
     </div>
     <div class="row" style="margin-bottom:10px">
-      ${!e.done?`<button class="accent" id="btnValidEssai">✔ Valider l'essai ${curEssai+1}</button>`:`<span class="badge ok">Essai ${curEssai+1} validé</span><button class="ghost small" id="btnUndoEssai">annuler la validation</button>`}
-      <span class="spacer"></span><b>Score final : ${fin!=null?fmt(fin,2)+' pts':'–'}</b>
+      ${e.done?`<span class="small" style="color:var(--ok);font-weight:700">✔ Essai ${curEssai+1} validé</span> <button class="small" id="btnUndo">modifier</button>`:`<button class="accent" id="btnValid">✔ Valider l'essai ${curEssai+1}</button>`}
+      <span class="spacer"></span><b>Score final ${curFig} : ${fmt(figFinal(F))}</b>
     </div>
-    <label class="small muted">Proposition d'amélioration</label>
-    <textarea id="inAmelio" rows="2">${esc(P.amelioration)}</textarea>
-    <div class="row" style="margin-top:12px">
-      <button class="danger" id="btnCancelEval">Annuler</button><span class="spacer"></span>
-      <button class="primary" id="btnSaveEval">💾 Enregistrer le passage</button>
-    </div>`;
+    <label class="small muted">Proposition d'amélioration (figure ${curFig})</label>
+    <textarea id="inAmelio" rows="2">${esc(F.amelio)}</textarea>
+    <div class="total" style="margin-top:12px"><span>Total (2 meilleures figures)</span><b>${fmt(tot)} pts</b></div>
+    <div class="row"><button class="danger" id="btnCancel">Annuler</button><span class="spacer"></span><button class="primary" id="btnFinish">💾 Enregistrer · groupe suivant</button></div>`;
 }
-$('#panel').addEventListener('click',e=>{
-  const t=e.target.closest('[data-ess],[data-ind],[data-pen],[data-step],#btnValidEssai,#btnUndoEssai,#btnSaveEval,#btnCancelEval'); if(!t) return;
-  const es=E();
-  if(t.dataset.ess!=null){ curEssai=+t.dataset.ess; chronoReset(); }
-  else if(t.dataset.ind!=null) es.indisp[+t.dataset.ind]=!es.indisp[+t.dataset.ind];
-  else if(t.dataset.pen!=null) es.pen[+t.dataset.pen]=!es.pen[+t.dataset.pen];
-  else if(t.dataset.step!=null) es.steps=Math.max(0,Math.min(50,es.steps+ +t.dataset.step));
-  else if(t.id==='btnValidEssai'){
-    if(es.time==null && !confirm('Aucun temps saisi pour cet essai. Valider quand même ?')) return;
-    es.done=true; if(curEssai===0 && !P.essais[1].done){ curEssai=1; chronoReset(); toast('Essai 1 validé — place à l\'essai 2'); }
+$('#panel').addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-fig],[data-ess],[data-ind],[data-pen],[data-step],#btnValid,#btnUndo,#btnFinish,#btnCancel'); if(!t) return;
+  const F=T.figs[curFig], e=F.essais[curEssai];
+  if(t.dataset.fig){ if(t.dataset.fig!==curFig){ curFig=t.dataset.fig; const n=T.figs[curFig].essais; curEssai=(n[0].done&&!n[1].done)?1:0; chronoReset(); } }
+  else if(t.dataset.ess!=null){ curEssai=+t.dataset.ess; chronoReset(); }
+  else if(t.dataset.ind!=null) e.indisp[+t.dataset.ind]^=1, e.indisp=e.indisp.map(Boolean);
+  else if(t.dataset.pen!=null) e.pen[+t.dataset.pen]^=1, e.pen=e.pen.map(Boolean);
+  else if(t.dataset.step!=null) e.steps=Math.max(0,Math.min(50,e.steps+ +t.dataset.step));
+  else if(t.id==='btnValid'){ if(e.time==null&&!confirm('Pas de temps mesuré. Valider quand même ?')) return; e.done=true; if(curEssai===0){curEssai=1;chronoReset();toast('Essai 1 validé → essai 2');} }
+  else if(t.id==='btnUndo') e.done=false;
+  else if(t.id==='btnCancel'){ if(confirm('Abandonner ce groupe sans enregistrer ?')){ T=null; show('names'); } return; }
+  else if(t.id==='btnFinish'){
+    if(!figsDone(T).length && !confirm('Aucun essai validé. Enregistrer quand même ?')) return;
+    S.results.push(T); save(); toast('Groupe enregistré ✔'); T=null;
+    names={gym:['','',''],obs:['']}; renderNames(); show('names'); return;
   }
-  else if(t.id==='btnUndoEssai') es.done=false;
-  else if(t.id==='btnSaveEval'){ P.amelioration=$('#inAmelio').value; closeEval(true); return; }
-  else if(t.id==='btnCancelEval'){ if(confirm('Abandonner sans enregistrer ?')) closeEval(false); return; }
   renderPanel();
 });
-$('#panel').addEventListener('change',e=>{
-  if(e.target.id==='inTime'){ const v=parseFloat(e.target.value.replace(',','.')); E().time=isNaN(v)?null:Math.round(v*10)/10; renderPanel(); }
-  if(e.target.id==='inAmelio') P.amelioration=e.target.value;
+$('#panel').addEventListener('change',ev=>{
+  if(ev.target.id==='inTime'){ const v=parseFloat(ev.target.value.replace(',','.')); T.figs[curFig].essais[curEssai].time=isNaN(v)?null:Math.round(v*10)/10; renderPanel(); }
+  if(ev.target.id==='inAmelio') T.figs[curFig].amelio=ev.target.value;
 });
+$('#panel').addEventListener('input',ev=>{ if(ev.target.id==='inAmelio') T.figs[curFig].amelio=ev.target.value; });
 
-/* ===================== VIDÉO DIFFÉRÉE ===================== */
+/* ===== Vidéo délay ===== */
 const disp=$('#disp'), dctx=disp.getContext('2d');
 const vid=document.createElement('video'); vid.muted=true; vid.playsInline=true; vid.setAttribute('playsinline','');
 const cap=document.createElement('canvas'), cctx=cap.getContext('2d');
-let stream=null, frames=[], pending=0, capTimer=null, rafId=null, shown=null, decoding=false;
-let paused=false, pausedT=null, devices=[], devIdx=-1, displayedT=null;
-const MAX_BUFFER_S=90;
+let stream=null, frames=[], pending=0, capTimer=null, shown=null, decoding=false, paused=false, pausedT=null, devices=[], devIdx=0, displayedT=null;
 
 async function camStart(deviceId){
-  if(!navigator.mediaDevices?.getUserMedia){ toast('Caméra non disponible (HTTPS requis)'); return; }
-  camStop(true);
+  if(!navigator.mediaDevices?.getUserMedia){ toast('Caméra indisponible (HTTPS requis)'); return; }
+  camStop();
   try{
     const w=S.settings.res;
-    const cons={audio:false,video: deviceId?{deviceId:{exact:deviceId},width:{ideal:w}}:{facingMode:'environment',width:{ideal:w}}};
-    stream=await navigator.mediaDevices.getUserMedia(cons);
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:deviceId?{deviceId:{exact:deviceId},width:{ideal:w}}:{facingMode:'environment',width:{ideal:w}}});
     vid.srcObject=stream; await vid.play();
     devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
-    const tid=stream.getVideoTracks()[0].getSettings().deviceId; devIdx=Math.max(0,devices.findIndex(d=>d.deviceId===tid));
-    frames=[]; shown=null; paused=false; updatePauseUI();
-    $('#stageMsg').classList.add('hidden');
-    capLoop(); if(!rafId) rafId=requestAnimationFrame(drawLoop);
-  }catch(err){ toast('Caméra refusée ou indisponible : '+err.message); }
+    const id=stream.getVideoTracks()[0].getSettings().deviceId; devIdx=Math.max(0,devices.findIndex(d=>d.deviceId===id));
+    $('#stageMsg').classList.add('hidden'); capLoop();
+  }catch(err){ toast('Caméra refusée : '+err.message); }
 }
-function camStop(keepUI){
-  clearTimeout(capTimer); capTimer=null;
-  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-  frames=[]; shown=null; displayedT=null; paused=false; hideBuffering();
-  if(!keepUI){ $('#stageMsg').classList.remove('hidden'); dctx.clearRect(0,0,disp.width,disp.height); updatePauseUI(); }
+function camStop(){
+  clearTimeout(capTimer); if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;}
+  frames=[]; shown=null; displayedT=null; paused=false; updatePause();
+  $('#stageMsg').classList.remove('hidden'); $('#bufMsg').classList.add('hidden'); dctx.clearRect(0,0,disp.width,disp.height);
 }
 function capLoop(){
-  if(!stream) return;
-  const t0=performance.now();
-  if(vid.readyState>=2 && vid.videoWidth && pending<3){
+  if(!stream) return; const t0=performance.now();
+  if(vid.readyState>=2&&vid.videoWidth&&pending<3){
     const w=Math.min(S.settings.res,vid.videoWidth), h=Math.round(w*vid.videoHeight/vid.videoWidth);
-    if(cap.width!==w||cap.height!==h){ cap.width=w; cap.height=h; }
-    cctx.drawImage(vid,0,0,w,h);
-    const t=performance.now(); pending++;
-    cap.toBlob(b=>{ pending--; if(!b) return; frames.push({t,b}); if(frames.length>1 && frames[frames.length-2].t>t) frames.sort((a,c)=>a.t-c.t); },'image/jpeg',0.72);
+    if(cap.width!==w||cap.height!==h){cap.width=w;cap.height=h;}
+    cctx.drawImage(vid,0,0,w,h); const t=performance.now(); pending++;
+    cap.toBlob(b=>{pending--; if(b){frames.push({t,b}); if(frames.length>1&&frames[frames.length-2].t>t) frames.sort((a,c)=>a.t-c.t);}},'image/jpeg',0.72);
   }
-  const now=performance.now();
-  if(!paused){ const lim=now-(S.settings.delay+2)*1000; let k=0; while(k<frames.length-1 && frames[k+1].t<lim) k++; if(k) frames.splice(0,k); }
-  else { const lim=now-MAX_BUFFER_S*1000; while(frames.length && frames[0].t<lim) frames.shift(); }
-  capTimer=setTimeout(capLoop, Math.max(5,1000/S.settings.fps-(performance.now()-t0)));
+  const now=performance.now(), lim= paused ? now-90000 : now-(S.settings.delay+2)*1000;
+  let k=0; while(k<frames.length-1&&frames[k+1].t<lim) k++; if(k) frames.splice(0,k);
+  capTimer=setTimeout(capLoop,Math.max(5,1000/S.settings.fps-(performance.now()-t0)));
 }
-function frameAt(t){ let lo=0,hi=frames.length-1,r=-1; while(lo<=hi){const m=(lo+hi)>>1; if(frames[m].t<=t){r=m;lo=m+1;}else hi=m-1;} return r; }
+function frameAt(t){let lo=0,hi=frames.length-1,r=-1;while(lo<=hi){const m=(lo+hi)>>1;if(frames[m].t<=t){r=m;lo=m+1;}else hi=m-1;}return r;}
 function drawFrame(f){
-  if(decoding) return; decoding=true;
+  decoding=true;
   const done=img=>{ if(disp.width!==img.width||disp.height!==img.height){disp.width=img.width;disp.height=img.height;} dctx.drawImage(img,0,0); decoding=false; };
-  if(window.createImageBitmap){ createImageBitmap(f.b).then(bmp=>{done(bmp);bmp.close&&bmp.close();}).catch(()=>{decoding=false;}); }
-  else { const u=URL.createObjectURL(f.b), im=new Image(); im.onload=()=>{done(im);URL.revokeObjectURL(u);}; im.onerror=()=>{decoding=false;}; im.src=u; }
+  if(window.createImageBitmap) createImageBitmap(f.b).then(b=>{done(b);b.close&&b.close();}).catch(()=>decoding=false);
+  else { const u=URL.createObjectURL(f.b),im=new Image(); im.onload=()=>{done(im);URL.revokeObjectURL(u);}; im.onerror=()=>decoding=false; im.src=u; }
 }
-function drawLoop(){
-  rafId=requestAnimationFrame(drawLoop);
+function loop(){
+  requestAnimationFrame(loop);
   const now=performance.now();
   if(stream){
-    const target = paused ? pausedT : now-S.settings.delay*1000;
-    const i=frameAt(target);
-    if(i<0){
-      const wait = frames.length ? (frames[0].t - target)/1000 : S.settings.delay;
-      showBuffering(Math.max(0,wait));
-      displayedT=null;
-    } else {
-      hideBuffering();
-      const f=frames[i]; if(f!==shown && !decoding){ shown=f; drawFrame(f); }
-      displayedT=shown?shown.t:null;
-    }
+    const target=paused?pausedT:now-S.settings.delay*1000, i=frameAt(target);
+    if(i<0){ const w=frames.length?(frames[0].t-target)/1000:S.settings.delay; $('#bufMsg').innerHTML=`<div>Vidéo délay dans</div><big>${Math.ceil(Math.max(0,w))}</big><div class="small">secondes</div>`; $('#bufMsg').classList.remove('hidden'); displayedT=null; }
+    else { $('#bufMsg').classList.add('hidden'); const f=frames[i]; if(f!==shown&&!decoding){shown=f;drawFrame(f);} displayedT=shown?shown.t:null; }
     if(paused) syncScrub();
-  } else displayedT=null;
+  }
   drawChrono(now);
 }
-let bufEl=null;
-function showBuffering(s){
-  if(!bufEl){ bufEl=document.createElement('div'); bufEl.className='msg'; $('#stage').appendChild(bufEl); }
-  bufEl.innerHTML=`<div>Vidéo différée dans</div><big>${Math.ceil(s)}</big><div class="small">secondes</div>`;
-  bufEl.classList.remove('hidden');
-}
-function hideBuffering(){ if(bufEl) bufEl.classList.add('hidden'); }
-
-/* Chrono synchronisé sur l'image différée */
+/* Chrono calé sur l'image délay */
 let T0=null, Tstop=null;
-function refTime(){ return stream ? displayedT : performance.now(); }
-function chronoReset(){ T0=null; Tstop=null; $('#btnStop').disabled=true; $('#btnTop').disabled=false; }
+function chronoReset(){ T0=null; Tstop=null; $('#btnStop').disabled=true; $('#btnTop').textContent='▶ Top départ'; }
 function drawChrono(now){
-  const ov=$('#ovChrono'); if(!ov) return;
-  ov.className='ov tr';
-  $('#ovDelay').textContent = stream ? (paused?'Relecture':'Différé '+S.settings.delay+' s') : 'Temps réel (sans caméra)';
+  const ov=$('#ovChrono'); ov.className='ov tr';
+  $('#ovDelay').textContent=stream?(paused?'Relecture':'Délay '+S.settings.delay+' s'):'Sans caméra (temps réel)';
   if(T0==null){ ov.textContent='0,0 s'; return; }
   if(Tstop!=null){ ov.classList.add('stop'); ov.textContent=fmtT((Tstop-T0)/1000); return; }
-  const ref = stream ? displayedT : now;
-  if(ref==null || ref<T0){
-    ov.classList.add('wait');
-    const wait = stream ? (paused ? null : (T0-(now-S.settings.delay*1000))/1000) : 0;
-    ov.textContent = wait!=null ? 'Départ dans '+Math.max(0,wait).toFixed(1).replace('.',',')+' s' : 'Avant le départ';
-    return;
-  }
+  const ref=stream?displayedT:now;
+  if(ref==null||ref<T0){ ov.classList.add('wait'); ov.textContent=paused?'Avant le départ':'Départ dans '+Math.max(0,(T0-(now-S.settings.delay*1000))/1000).toFixed(1).replace('.',',')+' s'; return; }
   ov.classList.add('run'); ov.textContent=fmtT((ref-T0)/1000);
 }
-$('#btnTop').onclick=()=>{
-  // en direct : top au moment réel ; en pause : top sur l'image relue
-  T0 = (stream && paused && displayedT!=null) ? displayedT : performance.now();
-  Tstop=null; $('#btnStop').disabled=false;
-  $('#btnTop').textContent='▶ Top départ (refaire)';
-};
+$('#btnTop').onclick=()=>{ T0=(stream&&paused&&displayedT!=null)?displayedT:performance.now(); Tstop=null; $('#btnStop').disabled=false; $('#btnTop').textContent='▶ Top départ (refaire)'; };
 $('#btnStop').onclick=()=>{
-  if(T0==null) return;
-  const ref=refTime();
-  if(ref==null || ref<T0){ toast('Le départ n\'est pas encore visible dans le différé'); return; }
+  if(T0==null) return; const ref=stream?displayedT:performance.now();
+  if(ref==null||ref<T0){ toast('Le départ n\'apparaît pas encore dans la vidéo'); return; }
   Tstop=ref; $('#btnStop').disabled=true;
-  if(P){ E().time=Math.round((Tstop-T0)/100)/10; renderPanel(); toast('Temps reporté : '+fmtT(E().time)); }
+  if(T){ T.figs[curFig].essais[curEssai].time=Math.round((Tstop-T0)/100)/10; renderPanel(); toast('Temps : '+fmtT((Tstop-T0)/1000)); }
 };
-$('#btnReset').onclick=()=>{ chronoReset(); $('#btnTop').textContent='▶ Top départ'; };
+$('#btnReset').onclick=chronoReset;
 $('#btnCam').onclick=()=>camStart();
-$('#btnCamOff').onclick=()=>camStop();
-$('#btnSwitchCam').onclick=()=>{ if(devices.length<2){ toast('Une seule caméra détectée'); return; } devIdx=(devIdx+1)%devices.length; camStart(devices[devIdx].deviceId); };
-$('#btnMirror').onclick=()=>{ S.settings.mirror=!S.settings.mirror; save(); applyMirror(); };
-function applyMirror(){ disp.classList.toggle('mirror',!!S.settings.mirror); }
+$('#btnSwitchCam').onclick=()=>{ if(devices.length<2){toast('Une seule caméra');return;} devIdx=(devIdx+1)%devices.length; camStart(devices[devIdx].deviceId); };
+$('#btnMirror').onclick=()=>{ S.settings.mirror=!S.settings.mirror; save(); disp.classList.toggle('mirror',S.settings.mirror); };
 function setDelay(d){ S.settings.delay=Math.max(1,Math.min(30,d)); $('#dVal').textContent=S.settings.delay+' s'; save(); }
 $('#dMinus').onclick=()=>setDelay(S.settings.delay-1);
 $('#dPlus').onclick=()=>setDelay(S.settings.delay+1);
-$('#btnPause').onclick=()=>{
-  if(!stream) return;
-  if(!paused){ if(displayedT==null) return; paused=true; pausedT=displayedT; }
-  else { paused=false; }
-  updatePauseUI();
-};
-function updatePauseUI(){
-  $('#btnPause').textContent = paused?'▶ Reprendre':'⏸';
-  $('#ovPause').classList.toggle('hidden',!paused);
-  $('#scrub').classList.toggle('hidden',!paused);
-}
-function syncScrub(){
-  if(!frames.length) return; const s=$('#scrub');
-  if(document.activeElement===s) return;
-  const a=frames[0].t, b=frames[frames.length-1].t; s.value = b>a ? Math.round((pausedT-a)/(b-a)*1000) : 1000;
-}
+$('#btnPause').onclick=()=>{ if(!stream) return; if(!paused){ if(displayedT==null) return; paused=true; pausedT=displayedT; } else paused=false; updatePause(); };
+function updatePause(){ $('#btnPause').textContent=paused?'▶ Reprendre':'⏸'; $('#ovPause').classList.toggle('hidden',!paused); $('#scrub').classList.toggle('hidden',!paused); }
+function syncScrub(){ const s=$('#scrub'); if(!frames.length||document.activeElement===s) return; const a=frames[0].t,b=frames[frames.length-1].t; s.value=b>a?Math.round((pausedT-a)/(b-a)*1000):1000; }
 $('#scrub').addEventListener('input',e=>{ if(!frames.length) return; const a=frames[0].t,b=frames[frames.length-1].t; pausedT=a+(b-a)*e.target.value/1000; });
-document.addEventListener('visibilitychange',()=>{ if(document.hidden && stream && curTab==='evaluer'){ /* garder le flux */ } });
 
-/* ===================== RÉSULTATS ===================== */
-function renderResultats(){
-  const c=cls(), gs=classGroups();
-  const gOf=id=>{const g=gs.find(g=>g.members.includes(id)); return g?g.name:'';};
-  const studs=[...c.students].sort((a,b)=>(gOf(a.id)+dn(a.id)).localeCompare(gOf(b.id)+dn(b.id),'fr',{numeric:true}));
-  $('#resStudents').innerHTML = studs.length ? `<tr><th>Élève</th><th>Groupe</th><th class="num">Fig. A</th><th class="num">Fig. B</th><th class="num">Fig. C</th><th class="num">Total (${S.settings.maxFig} fig.)</th><th class="num">Observations</th><th></th></tr>`+
-    studs.map(s=>{ const r=studentSummary(s.id); const keptF=new Set(r.kept.map(k=>k[0]));
-      const cell=f=> r.byFig[f]!=null ? `<td class="num" style="${keptF.has(f)?'font-weight:700':'color:#94a3b8'}">${fmt(r.byFig[f],2)}</td>` : '<td class="num muted">–</td>';
-      const st = r.figs.length<S.settings.maxFig ? `<span class="badge warn">${r.figs.length}/${S.settings.maxFig}</span>` : '<span class="badge ok">✓</span>';
-      return `<tr><td><b>${esc(dn(s.id))}</b></td><td>${esc(gOf(s.id))}</td>${cell('A')}${cell('B')}${cell('C')}<td class="num"><b>${r.total!=null?fmt(r.total,2):'–'}</b></td><td class="num">${r.obs}</td><td>${st}</td></tr>`; }).join('')
-    : '<tr><td class="muted">Aucun élève.</td></tr>';
-  const ps=classPassages().slice().sort((a,b)=>b.date.localeCompare(a.date));
-  $('#resPassages').innerHTML = ps.length ? `<tr><th>Date</th><th>Groupe</th><th>Fig.</th><th>Gymnastes</th><th>Observateurs</th><th class="num">Essai 1</th><th class="num">Essai 2</th><th class="num">Final</th><th></th></tr>`+
-    ps.map(p=>{ const e=i=>{const s=essaiScore(p.essais[i]); if(!s) return '–'; return s.valid?(s.score!=null?fmt(s.score,2):'?')+` <span class="small muted">(${fmtT(p.essais[i].time)} · ${p.essais[i].steps} ét.)</span>`:'<span class="badge ko">0 · non validé</span>';};
-      const f=finalScore(p);
-      return `<tr><td class="small">${new Date(p.date).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${esc(p.groupName)}</td><td><b>${p.figure}</b></td><td>${p.gymnasts.map(dn).map(esc).join(', ')}</td><td class="small">${p.observers.map(dn).map(esc).join(', ')}</td><td class="num">${e(0)}</td><td class="num">${e(1)}</td><td class="num"><b>${f!=null?fmt(f,2):'–'}</b></td><td class="num" style="white-space:nowrap"><button class="ghost" data-edit="${p.id}" title="Modifier">✏️</button><button class="ghost" data-delp="${p.id}" title="Supprimer">🗑️</button></td></tr>`; }).join('')
-    : '<tr><td class="muted">Aucun passage enregistré.</td></tr>';
+/* ===== Réglages ===== */
+$('#btnSettings').onclick=()=>{ $('#sDelay').value=S.settings.delay; $('#sFps').value=S.settings.fps; $('#sRes').value=S.settings.res; $('#dlgSet').showModal(); };
+$('#dlgSet').addEventListener('close',()=>{ setDelay(+$('#sDelay').value||5); S.settings.fps=+$('#sFps').value; const r=+$('#sRes').value; const ch=r!==S.settings.res; S.settings.res=r; save(); if(ch&&stream) camStart(devices[devIdx]?.deviceId); });
+
+/* ===== Résultats + export ===== */
+$('#btnHist').onclick=()=>{ if(T&&!confirm('Quitter la saisie en cours ? (non enregistrée)')) return; T=null; renderHist(); show('hist'); };
+$('#btnBack').onclick=()=>{ renderNames(); show('names'); };
+function renderHist(){
+  $('#histTable').innerHTML=S.results.length?`<tr><th>Heure</th><th>Gymnastes</th><th>Observateurs</th><th>A</th><th>B</th><th>C</th><th>Total</th><th></th></tr>`+
+    S.results.map((r,i)=>`<tr><td class="small">${new Date(r.date).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${r.gym.map(esc).join(', ')}</td><td class="small">${r.obs.map(esc).join(', ')}</td>${['A','B','C'].map(k=>`<td>${fmt(figFinal(r.figs[k]))}</td>`).join('')}<td><b>${fmt(teamTotal(r))}</b></td><td><button data-del="${i}">🗑️</button></td></tr>`).join('')
+    :'<tr><td class="muted">Aucun résultat.</td></tr>';
 }
-$('#resPassages').addEventListener('click',e=>{
-  const ed=e.target.closest('[data-edit]'); if(ed){ const p=S.passages.find(x=>x.id===ed.dataset.edit); openEval(p,false); return; }
-  const d=e.target.closest('[data-delp]'); if(d && confirm('Supprimer ce passage ?')){ S.passages=S.passages.filter(x=>x.id!==d.dataset.delp); save(); render(); }
-});
-
-/* Export Excel */
+$('#histTable').addEventListener('click',e=>{ const b=e.target.closest('[data-del]'); if(b&&confirm('Supprimer ?')){ S.results.splice(+b.dataset.del,1); save(); renderHist(); } });
+$('#btnWipe').onclick=()=>{ if(confirm('Effacer tous les résultats ?')){ S.results=[]; save(); renderHist(); } };
 $('#btnExport').onclick=()=>{
-  const c=cls(), gs=classGroups(), st=S.settings;
-  const gOf=id=>{const g=gs.find(g=>g.members.includes(id)); return g?g.name:'';};
-  const yn=b=>b?'Oui':'Non';
-  const wb=XLSX.utils.book_new();
-  // Feuille 1 : élèves
-  const studs=[...c.students].sort((a,b)=>(gOf(a.id)+a.nom+a.prenom).localeCompare(gOf(b.id)+b.nom+b.prenom,'fr',{numeric:true}));
-  const r1=[['Nom','Prénom','Groupe','Figure A','Figure B','Figure C','Figures retenues','Total ('+st.maxFig+' fig.)','Nb de figures réalisées','Nb fois observateur']];
-  studs.forEach(s=>{ const r=studentSummary(s.id); r1.push([s.nom,s.prenom,gOf(s.id),r.byFig.A??'',r.byFig.B??'',r.byFig.C??'',r.kept.map(k=>k[0]).join(' + '),r.total??'',r.figs.length,r.obs]); });
-  const ws1=XLSX.utils.aoa_to_sheet(r1); ws1['!cols']=[{wch:18},{wch:16},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14},{wch:12},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws1,'Élèves');
-  // Feuille 2 : détail des essais
-  const r2=[['Date','Groupe','Figure','Gymnastes','Observateurs','Essai',...INDISP.map((t,i)=>'Indisp. '+(i+1)+' – '+t),'Figure validée',...PENS.map((t,i)=>'Pénalité '+(i+1)+' – '+t),'Nb pénalités','Temps (s)','Multiplicateur','Nb étapes','Score essai','Score final figure','Proposition d\'amélioration']];
-  classPassages().slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(p=>{
-    const fin=finalScore(p);
-    p.essais.forEach((e,i)=>{ if(!e.done) return; const s=essaiScore(e);
-      r2.push([new Date(p.date).toLocaleString('fr-FR'),p.groupName,p.figure,p.gymnasts.map(dn).join(', '),p.observers.map(dn).join(', '),i+1,...e.indisp.map(yn),yn(s.valid),...e.pen.map(yn),s.nPen,e.time??'',s.m??'',e.steps,s.score??'',fin??'',p.amelioration||'']); });
-  });
-  const ws2=XLSX.utils.aoa_to_sheet(r2); ws2['!cols']=[{wch:18},{wch:10},{wch:7},{wch:30},{wch:30},{wch:6},{wch:14},{wch:14},{wch:14},{wch:10},{wch:14},{wch:14},{wch:14},{wch:10},{wch:9},{wch:12},{wch:9},{wch:10},{wch:12},{wch:40}];
+  if(!S.results.length){ toast('Aucun résultat'); return; }
+  const yn=b=>b?'Oui':'Non', wb=XLSX.utils.book_new();
+  const r1=[['Date','Gymnastes','Observateurs','Score final A','Score final B','Score final C','Total (2 meilleures)','Amélioration A','Amélioration B','Amélioration C']];
+  S.results.forEach(r=>r1.push([new Date(r.date).toLocaleString('fr-FR'),r.gym.join(', '),r.obs.join(', '),...['A','B','C'].map(k=>figFinal(r.figs[k])??''),teamTotal(r)??'',...['A','B','C'].map(k=>r.figs[k].amelio||'')]));
+  const ws1=XLSX.utils.aoa_to_sheet(r1); ws1['!cols']=[{wch:18},{wch:34},{wch:28},{wch:12},{wch:12},{wch:12},{wch:16},{wch:30},{wch:30},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Synthèse');
+  const r2=[['Date','Gymnastes','Observateurs','Figure','Essai',...INDISP,'Figure validée',...PENS,'Temps (s)','Multiplicateur','Nb étapes','Score essai']];
+  S.results.forEach(r=>['A','B','C'].forEach(k=>r.figs[k].essais.forEach((e,i)=>{ if(!e.done) return; const s=essaiScore(e);
+    r2.push([new Date(r.date).toLocaleString('fr-FR'),r.gym.join(', '),r.obs.join(', '),k,i+1,...e.indisp.map(yn),yn(s.valid),...e.pen.map(yn),e.time??'',s.m??'',e.steps,s.score??'']); })));
+  const ws2=XLSX.utils.aoa_to_sheet(r2); ws2['!cols']=[{wch:18},{wch:34},{wch:28},{wch:7},{wch:6},{wch:14},{wch:14},{wch:14},{wch:10},{wch:14},{wch:14},{wch:14},{wch:9},{wch:12},{wch:9},{wch:10}];
   XLSX.utils.book_append_sheet(wb,ws2,'Détail des essais');
-  // Feuille 3 : barème
-  const r3=[['Barème Acrosport – Situation 1'],[],['Temps','Multiplicateur'],['Moins de '+st.t1+' s','x'+st.m1],['De '+st.t1+' à '+st.t2+' s','x'+st.m2],['Plus de '+st.t2+' s','x'+st.m3],[],['Score essai','multiplicateur × nb d\'étapes − '+st.penalty+' par pénalité (0 si un critère indispensable manque)'],['Score final figure',{best:'meilleur des essais',last:'dernier essai',avg:'moyenne des essais'}[st.finalMode]],['Total élève','somme des '+st.maxFig+' meilleures figures']];
-  const ws3=XLSX.utils.aoa_to_sheet(r3); ws3['!cols']=[{wch:22},{wch:70}];
-  XLSX.utils.book_append_sheet(wb,ws3,'Barème');
-  const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  XLSX.writeFile(wb,`Acrosport_${c.name.replace(/[^\w\-]+/g,'_')}_${stamp}.xlsx`);
+  XLSX.writeFile(wb,'Acrosport_resultats_'+new Date().toISOString().slice(0,10)+'.xlsx');
 };
-$('#btnBackup').onclick=()=>{
-  const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='acrovictor_sauvegarde_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-};
-$('#fileRestore').addEventListener('change',async e=>{
-  const f=e.target.files[0]; if(!f) return;
-  try{ const d=JSON.parse(await f.text()); if(!d.classes) throw new Error('fichier invalide');
-    if(!confirm('Remplacer toutes les données par cette sauvegarde ?')) return;
-    S=d; S.settings=Object.assign({},DEF_SETTINGS,d.settings||{}); save(); render(); toast('Sauvegarde restaurée');
-  }catch(err){ toast('Restauration impossible : '+err.message); }
-  e.target.value='';
-});
 
-/* ===================== RÉGLAGES ===================== */
-const SET_MAP={sT1:'t1',sT2:'t2',sM1:'m1',sM2:'m2',sM3:'m3',sPen:'penalty',sDelay:'delay',sFps:'fps',sRes:'res',sMaxFig:'maxFig'};
-function renderReglages(){
-  const st=S.settings;
-  Object.entries(SET_MAP).forEach(([id,k])=>{ $('#'+id).value=st[k]; });
-  $('#sFinal').value=st.finalMode; $('#sGA').value=st.gym.A; $('#sGB').value=st.gym.B; $('#sGC').value=st.gym.C;
-}
-$('#tab-reglages').addEventListener('change',e=>{
-  const id=e.target.id, st=S.settings;
-  if(SET_MAP[id]){ const v=parseFloat(String(e.target.value).replace(',','.')); if(!isNaN(v)) st[SET_MAP[id]]=v; }
-  if(id==='sFinal') st.finalMode=e.target.value;
-  if(/^sG[ABC]$/.test(id)){ const v=parseInt(e.target.value); if(v>0) st.gym[id.slice(-1)]=v; }
-  st.delay=Math.max(1,Math.min(30,st.delay)); setDelay(st.delay);
-  save(); toast('Réglage enregistré');
-});
-$('#btnWipeResults').onclick=()=>{ if(confirm('Effacer tous les passages de la classe « '+cls().name+' » ?')){ S.passages=S.passages.filter(p=>p.classId!==cls().id); save(); render(); } };
-$('#btnWipeAll').onclick=()=>{ if(confirm('Tout effacer (classes, groupes, résultats) ?')){ localStorage.removeItem(KEY); S=load(); render(); } };
-
-/* ===================== INIT ===================== */
-setDelay(S.settings.delay); applyMirror(); render();
-rafId=requestAnimationFrame(drawLoop);
-if('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('sw.js').catch(()=>{});
-window.addEventListener('beforeunload',e=>{ if(P){ e.preventDefault(); e.returnValue=''; } });
+/* ===== Init ===== */
+setDelay(S.settings.delay); disp.classList.toggle('mirror',!!S.settings.mirror); renderNames(); requestAnimationFrame(loop);
+if('serviceWorker' in navigator&&location.protocol!=='file:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>

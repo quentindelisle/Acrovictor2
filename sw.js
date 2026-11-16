@@ -1,5 +1,5 @@
 // Acrovictor – service worker (hors ligne)
-const CACHE = 'acrovictor-v1';
+const CACHE = 'acrovictor-v2';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './lib/xlsx.full.min.js',
   './img/figure-a.png', './img/figure-b.png', './img/figure-c.png',
