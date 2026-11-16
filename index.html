@@ -54,6 +54,12 @@ main{padding:14px;max-width:1400px;margin:0 auto}
 .delayctl{display:flex;align-items:center;background:#e6ebf5;border-radius:10px}
 .delayctl span{min-width:56px;text-align:center;font-weight:600}
 .delayctl button{background:transparent;padding:10px 12px}
+#evalView.novideo{grid-template-columns:1fr}
+#evalView.novideo .videobox{display:none}
+.measurebar{display:flex;gap:8px;margin-top:10px}
+.measurebar button{flex:1;font-size:1.15rem;font-weight:700;padding:16px}
+button.go{background:var(--ok);color:#fff}
+.ov.bl{bottom:10px;left:10px;font-size:1.3rem;background:rgba(21,128,61,.9)}
 #ver{position:fixed;left:8px;bottom:6px;font-size:.72rem;color:var(--muted);z-index:50;pointer-events:none}
 .ov.tr{top:10px;right:10px;font-size:2.3rem;font-variant-numeric:tabular-nums;min-width:130px;text-align:right}
 .vbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
@@ -137,7 +143,9 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
       <div class="msg" id="stageMsg"><div>📷 Appuyez sur Start pour filmer</div></div>
       <div class="ov tl" id="ovState">Délay</div>
       <div class="ov tr" id="ovChrono">0,0 s</div>
+      <div class="ov bl hidden" id="ovMeas"></div>
     </div>
+    <div class="measurebar"><button class="go" id="bDeb">▶ Début</button><button class="rec" id="bFin">■ Fin</button></div>
     <div class="vbar" id="barLive">
       <button class="big rec" id="btnStart">● Start</button>
       <button id="btnReview" disabled>⏸ Relire</button>
@@ -145,6 +153,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
       <div class="delayctl" title="Délay"><button id="dMinus">−</button><span id="dVal">5 s</span><button id="dPlus">+</button></div>
       <button id="btnMirror" title="Miroir">⇋</button>
       <button id="btnSwitchCam" title="Changer de caméra">🔄</button>
+      <button id="btnHideVid" title="Masquer la vidéo">🙈 Masquer</button>
     </div>
     <div id="barReplay" class="hidden">
       <input type="range" id="seek" min="0" max="1000" value="1000" step="1">
@@ -192,7 +201,7 @@ const PENS=['Ajustements pendant le montage / démontage','Communication inutile
 /* Multiplicateur : 5 à 10 s → x1 ; 10 à 14 s → x1,5 ; + de 14 s → x2 */
 function multFor(t){ if(t==null||isNaN(t)) return null; return t<10?1:(t<=14?1.5:2); }
 
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 const KEY='acrovictor.v3';
 let S=load();
 function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.results) return s;}catch(e){} return {results:[],settings:{delay:5,res:960,mirror:false}}; }
@@ -231,7 +240,7 @@ $('#addGym').onclick=()=>{ names.gym.push(''); renderNames(); $('#gymList').last
 $('#addObs').onclick=()=>{ names.obs.push(''); renderNames(); $('#obsList').lastElementChild.focus(); };
 $('#btnGo').onclick=()=>{
   G={id:Date.now().toString(36),date:new Date().toISOString(),gym:names.gym.map(s=>s.trim()).filter(Boolean),obs:names.obs.map(s=>s.trim()).filter(Boolean),videos:[]};
-  newEval(); show('eval');
+  newEval(); vidHidden=false; $('#evalView').classList.remove('novideo'); show('eval');
 };
 function show(v){ ['names','eval','hist'].forEach(x=>$('#'+x+'View').classList.toggle('hidden',x!==v)); if(v!=='eval'){ camStop(); clearClips(); } window.scrollTo(0,0); }
 
@@ -249,6 +258,7 @@ function renderPanel(){
   const formula=!s.fig?'Choisissez la figure vue':(!sc.valid?'Critère indispensable manquant → 0':(m==null?'Mesurez le temps':`x${fmt(m)} × ${s.steps} étape${s.steps>1?'s':''}${sc.nPen?` − ${sc.nPen} pénalité${sc.nPen>1?'s':''}`:''}`));
   const en=s.fig?essaiNum(s.fig):null;
   $('#panel').innerHTML=`
+    ${vidHidden?'<button class="accent" id="btnShowVid" style="width:100%;margin-bottom:10px">📹 Afficher la vidéo</button>':''}
     <div class="small"><b>🤸 ${G.gym.map(esc).join(', ')}</b><br><span class="muted">👁️ ${G.obs.map(esc).join(', ')||'—'}</span></div>
     <h3 style="margin-top:12px">Vidéo ${G.videos.length+1} — j'observe :</h3>
     <div class="modes"><button data-mode="1" class="${cur.mode===1?'on':''}">1 figure</button><button data-mode="2" class="${cur.mode===2?'on':''}">Un enchaînement de 2 figures</button></div>
@@ -261,8 +271,8 @@ function renderPanel(){
     <div class="sect koc"><div class="secth"><span>Pénalités (+1 point)</span><span>${sc.nPen}</span></div>
       ${PENS.map((t,i)=>`<div class="crit ${s.pen[i]?'on':''}" data-pen="${i}"><span class="box">${s.pen[i]?'+1':''}</span>${esc(t)}</div>`).join('')}</div>
     <div class="measure">
-      <div class="m"><label>Temps (repères pris sur la vidéo)</label>
-        <div class="marks"><button data-mark="debut">⏱ Début${s.debut!=null?' '+fmtT(s.debut):''}</button><button data-mark="fin">⏱ Fin${s.fin!=null?' '+fmtT(s.fin):''}</button></div>
+      <div class="m"><label>Temps (boutons Début / Fin sous la vidéo)</label>
+        <div class="small muted" style="margin-bottom:6px">Début ${fmtT(s.debut)} · Fin ${fmtT(s.fin)}</div>
         <div class="timein"><input id="inTime" inputmode="decimal" value="${s.time!=null?String(s.time).replace('.',','):''}" placeholder="–"> s</div></div>
       <div class="m"><label>Nombre d'étapes</label><div class="stepper"><button data-step="-1">−</button><output>${s.steps}</output><button data-step="1">+</button></div></div>
     </div>
@@ -284,7 +294,8 @@ function recap(){
     <div class="total"><span>Total (2 meilleures figures)</span><b>${fmt(groupTotal(G))} pts</b></div>`;
 }
 $('#panel').addEventListener('click',ev=>{
-  const t=ev.target.closest('[data-mode],[data-slot],[data-fig],[data-ind],[data-pen],[data-step],[data-mark],#btnSaveVid,#btnFinish,#btnCancel'); if(!t) return;
+  if(ev.target.closest('#btnShowVid')){ setVidHidden(false); return; }
+  const t=ev.target.closest('[data-mode],[data-slot],[data-fig],[data-ind],[data-pen],[data-step],#btnSaveVid,#btnFinish,#btnCancel'); if(!t) return;
   const s=S_();
   if(t.dataset.mode){ cur.mode=+t.dataset.mode; if(cur.mode===1) cur.slot=0; }
   else if(t.dataset.slot!=null) cur.slot=+t.dataset.slot;
@@ -292,11 +303,6 @@ $('#panel').addEventListener('click',ev=>{
   else if(t.dataset.ind!=null) s.indisp[+t.dataset.ind]=!s.indisp[+t.dataset.ind];
   else if(t.dataset.pen!=null) s.pen[+t.dataset.pen]=!s.pen[+t.dataset.pen];
   else if(t.dataset.step!=null) s.steps=Math.max(0,Math.min(50,s.steps+ +t.dataset.step));
-  else if(t.dataset.mark){
-    const vt=curVideoTime(); if(vt==null){ toast('Pas encore d\'image à l\'écran'); return; }
-    s[t.dataset.mark]=vt;
-    if(s.debut!=null&&s.fin!=null){ if(s.fin<s.debut) [s.debut,s.fin]=[s.fin,s.debut]; s.time=Math.round((s.fin-s.debut)*10)/10; }
-  }
   else if(t.id==='btnSaveVid'){
     const used=cur.slots.slice(0,cur.mode);
     if(used.some(x=>!x.fig)){ toast('Choisissez la figure vue'+(cur.mode===2?' (figures 1 et 2)':'')); return; }
@@ -351,7 +357,7 @@ function setState(st){
 }
 async function startRun(){
   if(!stream && !(await camStart())) return;
-  frames=[]; shown=null; displayedT=null; startT=performance.now();
+  frames=[]; shown=null; displayedT=null; startT=performance.now(); dctx.clearRect(0,0,disp.width,disp.height);
   setState('run'); clearTimeout(capTimer); capLoop();
 }
 function capLoop(){
@@ -384,11 +390,12 @@ function tick(){
     target= state==='review' ? reviewT : liveEdge();
   } else target=liveEdge();
   const i=frameAt(target);
-  if(i<0){ displayedT=null; st.textContent='buffering…'; st.classList.add('buf'); $('#ovChrono').textContent='0,0 s'; return; }
+  if(i<0){ displayedT=null; if(shown){ shown=null; dctx.clearRect(0,0,disp.width,disp.height); } st.textContent='buffering…'; st.classList.add('buf'); $('#ovChrono').textContent='0,0 s'; drawMeasure(); return; }
   const f=frames[i]; if(f!==shown&&!decoding){ shown=f; drawFrame(f); }
   displayedT=shown?shown.t:null;
   st.textContent= state==='review' ? 'Relecture' : 'Délay '+S.settings.delay+' s';
   $('#ovChrono').textContent= displayedT!=null ? fmtT((displayedT-startT)/1000) : '0,0 s';
+  drawMeasure();
   if(state==='review' && frames.length && document.activeElement!==$('#seek')){
     const a=frames[0].t, z=Math.max(a+1,liveEdge()); $('#seek').value=Math.round((reviewT-a)/(z-a)*1000);
   }
@@ -414,6 +421,28 @@ $('#btnSwitchCam').onclick=()=>{ if(devices.length<2){toast('Une seule caméra')
 function applyMirror(){ disp.classList.toggle('mirror',!!S.settings.mirror); }
 $('#btnMirror').onclick=()=>{ S.settings.mirror=!S.settings.mirror; save(); applyMirror(); };
 function clearClips(){}
+/* Début / Fin : calcul automatique du temps dans la fiche (figure active) */
+$('#bDeb').onclick=()=>{
+  const vt=curVideoTime(); if(vt==null){ toast('Pas encore d\'image à l\'écran'); return; }
+  const s=S_(); s.debut=vt; s.fin=null; s.time=null; renderPanel(); toast('Début : '+fmtT(vt));
+};
+$('#bFin').onclick=()=>{
+  const vt=curVideoTime(), s=S_(); if(vt==null){ toast('Pas encore d\'image à l\'écran'); return; }
+  if(s.debut==null){ toast('Appuyez d\'abord sur Début'); return; }
+  if(vt<s.debut){ toast('La fin est avant le début'); return; }
+  s.fin=vt; s.time=Math.round((s.fin-s.debut)*10)/10; renderPanel(); toast('Temps : '+fmtT(s.time));
+};
+let vidHidden=false;
+function setVidHidden(h){ vidHidden=h; $('#evalView').classList.toggle('novideo',h); renderPanel(); }
+$('#btnHideVid').onclick=()=>setVidHidden(true);
+function drawMeasure(){
+  const o=$('#ovMeas'); const s=cur&&G?S_():null; const vt=curVideoTime();
+  if(!s||s.debut==null){ o.classList.add('hidden'); return; }
+  const t = s.fin!=null ? s.time : (vt!=null&&vt>=s.debut ? vt-s.debut : null);
+  if(t==null){ o.classList.add('hidden'); return; }
+  o.classList.remove('hidden'); o.textContent=(s.fin!=null?'Temps : ':'⏱ ')+fmtT(t);
+}
+
 
 /* ===== Réglages ===== */
 $('#btnSettings').onclick=()=>{ $('#sRes').value=S.settings.res; $('#dlgSet').showModal(); };
