@@ -57,7 +57,10 @@ main{padding:14px;max-width:1400px;margin:0 auto}
 #evalView.novideo{grid-template-columns:1fr}
 #evalView.novideo .videobox{display:none}
 .measurebar{display:flex;gap:8px;margin-top:10px}
-.measurebar button{flex:1;font-size:1.15rem;font-weight:700;padding:16px}
+.measurebar button{flex:1;font-size:1.05rem;font-weight:700;padding:14px 10px}
+.measurebar.two{display:grid;grid-template-columns:1fr 1fr}
+.measurebar button.done{opacity:.55}
+.liaison{background:#fff3e8;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:.9rem;display:flex;justify-content:space-between}
 button.go{background:var(--ok);color:#fff}
 .ov.bl{bottom:10px;left:10px;font-size:1.3rem;background:rgba(21,128,61,.9)}
 #ver{position:fixed;left:8px;bottom:6px;font-size:.72rem;color:var(--muted);z-index:50;pointer-events:none}
@@ -145,7 +148,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
       <div class="ov tr" id="ovChrono">0,0 s</div>
       <div class="ov bl hidden" id="ovMeas"></div>
     </div>
-    <div class="measurebar"><button class="go" id="bDeb">▶ Début</button><button class="rec" id="bFin">■ Fin</button></div>
+    <div class="measurebar" id="measureBar"></div>
     <div class="vbar" id="barLive">
       <button class="big rec" id="btnStart">● Start</button>
       <button id="btnReview" disabled>⏸ Relire</button>
@@ -201,7 +204,7 @@ const PENS=['Ajustements pendant le montage / démontage','Communication inutile
 /* Multiplicateur : 5 à 10 s → x1 ; 10 à 14 s → x1,5 ; + de 14 s → x2 */
 function multFor(t){ if(t==null||isNaN(t)) return null; return t<10?1:(t<=14?1.5:2); }
 
-const APP_VERSION='1.5.0';
+const APP_VERSION='1.6.0';
 const KEY='acrovictor.v3';
 let S=load();
 function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.results) return s;}catch(e){} return {results:[],settings:{delay:5,res:960,mirror:false}}; }
@@ -252,6 +255,7 @@ function essaiNum(k){ return essaisOf(G,k).length + cur.slots.slice(0,cur.mode).
 
 function renderPanel(){
   if(!G) return;
+  renderMeasureBar();
   const s=S_(), sc=slotScore(s), m=sc.m;
   const slotTab=i=>{const x=cur.slots[i],r=slotScore(x);return `<button data-slot="${i}" class="${i===cur.slot?'on':''}">Figure ${i+1}${x.fig?' : '+x.fig:''}<span class="sc">${x.fig?(r.valid?(r.score!=null?fmt(r.score)+' pts':'temps ?'):'non validée · 0'):'à choisir'}</span></button>`;};
   const figBox=k=>{const n=essaisOf(G,k).length;return `<div data-fig="${k}" class="${s.fig===k?'on':''}"><img src="${FIGS[k]}" alt=""><b>${k}</b><span class="sc">${n?n+' essai'+(n>1?'s':'')+' · '+fmt(figFinal(G,k))+' pts':'—'}</span></div>`;};
@@ -262,7 +266,7 @@ function renderPanel(){
     <div class="small"><b>🤸 ${G.gym.map(esc).join(', ')}</b><br><span class="muted">👁️ ${G.obs.map(esc).join(', ')||'—'}</span></div>
     <h3 style="margin-top:12px">Vidéo ${G.videos.length+1} — j'observe :</h3>
     <div class="modes"><button data-mode="1" class="${cur.mode===1?'on':''}">1 figure</button><button data-mode="2" class="${cur.mode===2?'on':''}">Un enchaînement de 2 figures</button></div>
-    ${cur.mode===2?`<div class="slottabs">${slotTab(0)}${slotTab(1)}</div>`:''}
+    ${cur.mode===2?`<div class="slottabs">${slotTab(0)}${slotTab(1)}</div><div class="liaison"><span>⛓ Liaison figure 1 → figure 2</span><b>${fmtT(liaison())}</b></div>`:''}
     <div class="small muted" style="margin-bottom:6px">Figure vue ${cur.mode===2?(cur.slot===0?'en 1ᵉʳ':'en 2ᵉ'):''} :</div>
     <div class="figpick">${figBox('A')}${figBox('B')}${figBox('C')}</div>
     ${en?`<div class="small" style="margin:-4px 0 10px"><b>Figure ${s.fig} · essai ${en}</b>${en>2?' <span style="color:#9a5b00">(au-delà de 2 essais, le meilleur est retenu)</span>':''}</div>`:''}
@@ -271,7 +275,7 @@ function renderPanel(){
     <div class="sect koc"><div class="secth"><span>Pénalités (+1 point)</span><span>${sc.nPen}</span></div>
       ${PENS.map((t,i)=>`<div class="crit ${s.pen[i]?'on':''}" data-pen="${i}"><span class="box">${s.pen[i]?'+1':''}</span>${esc(t)}</div>`).join('')}</div>
     <div class="measure">
-      <div class="m"><label>Temps (boutons Début / Fin sous la vidéo)</label>
+      <div class="m"><label>Temps de la figure (boutons sous la vidéo)</label>
         <div class="small muted" style="margin-bottom:6px">Début ${fmtT(s.debut)} · Fin ${fmtT(s.fin)}</div>
         <div class="timein"><input id="inTime" inputmode="decimal" value="${s.time!=null?String(s.time).replace('.',','):''}" placeholder="–"> s</div></div>
       <div class="m"><label>Nombre d'étapes</label><div class="stepper"><button data-step="-1">−</button><output>${s.steps}</output><button data-step="1">+</button></div></div>
@@ -308,7 +312,7 @@ $('#panel').addEventListener('click',ev=>{
     if(used.some(x=>!x.fig)){ toast('Choisissez la figure vue'+(cur.mode===2?' (figures 1 et 2)':'')); return; }
     if(cur.mode===2&&used[0].fig===used[1].fig&&!confirm('Les 2 figures sont identiques. Continuer ?')) return;
     if(used.some(x=>x.time==null)&&!confirm('Un temps n\'est pas mesuré. Valider quand même ?')) return;
-    G.videos.push({n:G.videos.length+1,mode:cur.mode,date:new Date().toISOString(),figs:structuredClone(used)});
+    G.videos.push({n:G.videos.length+1,mode:cur.mode,liaison:cur.mode===2?liaison():null,date:new Date().toISOString(),figs:structuredClone(used)});
     toast('Vidéo '+G.videos.length+' validée ✔'); newEval(); return;
   }
   else if(t.id==='btnFinish'){
@@ -421,26 +425,46 @@ $('#btnSwitchCam').onclick=()=>{ if(devices.length<2){toast('Une seule caméra')
 function applyMirror(){ disp.classList.toggle('mirror',!!S.settings.mirror); }
 $('#btnMirror').onclick=()=>{ S.settings.mirror=!S.settings.mirror; save(); applyMirror(); };
 function clearClips(){}
-/* Début / Fin : calcul automatique du temps dans la fiche (figure active) */
-$('#bDeb').onclick=()=>{
+/* Début / Fin montage figure 1 (et 2) : temps calculés automatiquement + liaison */
+function liaison(){ if(!cur||cur.mode!==2) return null; const a=cur.slots[0], b=cur.slots[1]; return a.fin!=null&&b.debut!=null ? Math.round((b.debut-a.fin)*10)/10 : null; }
+function renderMeasureBar(){
+  const bar=$('#measureBar'); if(!cur){ bar.innerHTML=''; return; }
+  const n=cur.mode===2?2:1; bar.classList.toggle('two',n===2);
+  let h='';
+  for(let i=0;i<n;i++){ const sl=cur.slots[i];
+    h+=`<button class="go ${sl.debut!=null?'done':''}" data-m="deb" data-s="${i}">▶ Début montage figure ${i+1}${sl.debut!=null?' ✓':''}</button>`;
+    h+=`<button class="rec ${sl.fin!=null?'done':''}" data-m="fin" data-s="${i}">■ Fin montage figure ${i+1}${sl.fin!=null?' ✓':''}</button>`; }
+  bar.innerHTML=h;
+}
+$('#measureBar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-m]'); if(!b) return;
   const vt=curVideoTime(); if(vt==null){ toast('Pas encore d\'image à l\'écran'); return; }
-  const s=S_(); s.debut=vt; s.fin=null; s.time=null; renderPanel(); toast('Début : '+fmtT(vt));
-};
-$('#bFin').onclick=()=>{
-  const vt=curVideoTime(), s=S_(); if(vt==null){ toast('Pas encore d\'image à l\'écran'); return; }
-  if(s.debut==null){ toast('Appuyez d\'abord sur Début'); return; }
-  if(vt<s.debut){ toast('La fin est avant le début'); return; }
-  s.fin=vt; s.time=Math.round((s.fin-s.debut)*10)/10; renderPanel(); toast('Temps : '+fmtT(s.time));
-};
+  const i=+b.dataset.s, sl=cur.slots[i];
+  if(b.dataset.m==='deb'){
+    if(i===1&&cur.slots[0].fin!=null&&vt<cur.slots[0].fin){ toast('Le début de la figure 2 est avant la fin de la figure 1'); return; }
+    sl.debut=vt; sl.fin=null; sl.time=null; toast('Début figure '+(i+1)+' : '+fmtT(vt));
+  } else {
+    if(sl.debut==null){ toast('Appuyez d\'abord sur Début montage figure '+(i+1)); return; }
+    if(vt<sl.debut){ toast('La fin est avant le début'); return; }
+    sl.fin=vt; sl.time=Math.round((sl.fin-sl.debut)*10)/10;
+    toast('Figure '+(i+1)+' : '+fmtT(sl.time)+(i===1&&liaison()!=null?' · liaison '+fmtT(liaison()):''));
+  }
+  if(cur.mode===2) cur.slot=i;
+  renderPanel();
+});
 let vidHidden=false;
 function setVidHidden(h){ vidHidden=h; $('#evalView').classList.toggle('novideo',h); renderPanel(); }
 $('#btnHideVid').onclick=()=>setVidHidden(true);
 function drawMeasure(){
-  const o=$('#ovMeas'); const s=cur&&G?S_():null; const vt=curVideoTime();
-  if(!s||s.debut==null){ o.classList.add('hidden'); return; }
-  const t = s.fin!=null ? s.time : (vt!=null&&vt>=s.debut ? vt-s.debut : null);
-  if(t==null){ o.classList.add('hidden'); return; }
-  o.classList.remove('hidden'); o.textContent=(s.fin!=null?'Temps : ':'⏱ ')+fmtT(t);
+  const o=$('#ovMeas'); if(!cur||!G){ o.classList.add('hidden'); return; }
+  const vt=curVideoTime(), n=cur.mode===2?2:1; let txt=null;
+  for(let i=0;i<n;i++){ const sl=cur.slots[i];
+    if(sl.debut!=null&&sl.fin==null&&vt!=null&&vt>=sl.debut) txt=`Figure ${i+1} ⏱ ${fmtT(vt-sl.debut)}`; }
+  if(!txt&&n===2){ const a=cur.slots[0], b=cur.slots[1];
+    if(a.fin!=null&&b.debut==null&&vt!=null&&vt>=a.fin) txt=`Liaison ⏱ ${fmtT(vt-a.fin)}`; }
+  if(!txt){ const parts=[]; for(let i=0;i<n;i++) if(cur.slots[i].time!=null) parts.push(`F${i+1} ${fmtT(cur.slots[i].time)}`);
+    if(n===2&&liaison()!=null) parts.splice(1,0,`liaison ${fmtT(liaison())}`); if(parts.length) txt=parts.join(' · '); }
+  o.classList.toggle('hidden',!txt); if(txt) o.textContent=txt;
 }
 
 
@@ -465,11 +489,11 @@ $('#btnExport').onclick=()=>{
   S.results.forEach(r=>r1.push([d(r),r.gym.join(', '),r.obs.join(', '),r.videos.length,...['A','B','C'].map(k=>figFinal(r,k)??''),groupTotal(r)??'']));
   const ws1=XLSX.utils.aoa_to_sheet(r1); ws1['!cols']=[{wch:18},{wch:34},{wch:28},{wch:9},{wch:12},{wch:12},{wch:12},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws1,'Synthèse');
-  const r2=[['Date','Gymnastes','Observateurs','Vidéo n°','Mode','Ordre','Figure','Essai n°',...INDISP,'Figure validée',...PENS,'Début (s)','Fin (s)','Temps (s)','Multiplicateur','Nb étapes','Score','Proposition d\'amélioration']];
+  const r2=[['Date','Gymnastes','Observateurs','Vidéo n°','Mode','Ordre','Figure','Essai n°',...INDISP,'Figure validée',...PENS,'Début montage (s)','Fin montage (s)','Temps figure (s)','Liaison F1→F2 (s)','Multiplicateur','Nb étapes','Score','Proposition d\'amélioration']];
   S.results.forEach(r=>{ const cnt={};
     r.videos.forEach(v=>v.figs.forEach((f,j)=>{ cnt[f.fig]=(cnt[f.fig]||0)+1; const s=slotScore(f);
-      r2.push([d(r),r.gym.join(', '),r.obs.join(', '),v.n,v.mode===2?'Enchaînement 2 figures':'1 figure',j+1,f.fig,cnt[f.fig],...f.indisp.map(yn),yn(s.valid),...f.pen.map(yn),f.debut??'',f.fin??'',f.time??'',s.m??'',f.steps,s.score??'',f.amelio||'']); })); });
-  const ws2=XLSX.utils.aoa_to_sheet(r2); ws2['!cols']=[{wch:18},{wch:30},{wch:26},{wch:8},{wch:20},{wch:6},{wch:7},{wch:7},{wch:14},{wch:14},{wch:14},{wch:10},{wch:14},{wch:14},{wch:14},{wch:8},{wch:8},{wch:9},{wch:12},{wch:9},{wch:8},{wch:36}];
+      r2.push([d(r),r.gym.join(', '),r.obs.join(', '),v.n,v.mode===2?'Enchaînement 2 figures':'1 figure',j+1,f.fig,cnt[f.fig],...f.indisp.map(yn),yn(s.valid),...f.pen.map(yn),f.debut??'',f.fin??'',f.time??'',v.liaison??'',s.m??'',f.steps,s.score??'',f.amelio||'']); })); });
+  const ws2=XLSX.utils.aoa_to_sheet(r2); ws2['!cols']=[{wch:18},{wch:30},{wch:26},{wch:8},{wch:20},{wch:6},{wch:7},{wch:7},{wch:14},{wch:14},{wch:14},{wch:10},{wch:14},{wch:14},{wch:14},{wch:10},{wch:10},{wch:10},{wch:12},{wch:12},{wch:9},{wch:8},{wch:36}];
   XLSX.utils.book_append_sheet(wb,ws2,'Détail des figures');
   XLSX.writeFile(wb,'Acrosport_resultats_'+new Date().toISOString().slice(0,10)+'.xlsx');
 };
