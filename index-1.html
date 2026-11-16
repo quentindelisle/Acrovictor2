@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Acrovictor – Vidéo acrosport</title>
+<meta name="theme-color" content="#1e3a8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Acrovictor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#f1f4fa;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#dbe2ee;--primary:#1e3a8a;--accent:#f97316;--rec:#dc2626;--ok:#15803d;--okbg:#dcefd8;--ko:#b91c1c;--kobg:#f6d2d2;--mult:#c9d9f5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:#e6ebf5;color:var(--ink);touch-action:manipulation}
+button.primary{background:var(--primary);color:#fff}
+button.accent{background:var(--accent);color:#fff}
+button.rec{background:var(--rec);color:#fff}
+button.danger{background:#fee2e2;color:var(--ko)}
+button.on{background:var(--primary);color:#fff}
+button:disabled{opacity:.45}
+input,textarea,select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{width:100%;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:14px}
+.hidden{display:none!important}
+h2{font-size:1.2rem;margin:0 0 12px} h3{font-size:1rem;margin:0 0 8px}
+header{position:sticky;top:0;z-index:20;background:var(--primary);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;display:flex;align-items:center;gap:10px}
+header img{width:34px;height:34px;border-radius:8px}
+header b{font-size:1.15rem} header .sig{font-size:.75rem;opacity:.75}
+header button{background:rgba(255,255,255,.15);color:#fff}
+main{padding:14px;max-width:1400px;margin:0 auto}
+
+.names{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.names{grid-template-columns:1fr}}
+.namelist input{width:100%;margin-bottom:8px;font-size:1.05rem}
+
+#evalView{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(340px,1fr);gap:14px;align-items:start}
+@media(max-width:900px){#evalView{grid-template-columns:1fr}}
+.videobox{position:sticky;top:66px}
+.stage{position:relative;background:#0b1020;border-radius:14px;overflow:hidden;aspect-ratio:4/3}
+.stage video{width:100%;height:100%;object-fit:contain;display:block;background:#0b1020}
+.mirror{transform:scaleX(-1)}
+.msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#cbd5e1;text-align:center;gap:12px;padding:20px}
+.ov{position:absolute;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-weight:600;pointer-events:none}
+.ov.tl{top:10px;left:10px;font-size:.95rem}
+.ov.tl.rec{background:var(--rec)}
+.ov.tr{top:10px;right:10px;font-size:2.3rem;font-variant-numeric:tabular-nums;min-width:130px;text-align:right}
+.vbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.vbar .big{font-size:1.1rem;font-weight:700;padding:14px 22px}
+#seek{width:100%;margin-top:10px}
+.clips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.clips button{padding:6px 10px;font-size:.85rem}
+
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.modes button{padding:12px;font-weight:600}
+.slottabs{display:flex;gap:6px;margin-bottom:10px}
+.slottabs button{flex:1;padding:10px;font-weight:600}
+.slottabs .sc{display:block;font-size:.78rem;font-weight:400;opacity:.85}
+.figpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.figpick div{background:#fff;border:3px solid var(--line);border-radius:12px;padding:6px;text-align:center;cursor:pointer}
+.figpick div.on{border-color:#2f55c4;box-shadow:0 0 0 3px #dbe6ff}
+.figpick img{width:100%;height:66px;object-fit:contain}
+.figpick b{display:block}
+.figpick .sc{font-size:.75rem;color:var(--muted)}
+.sect{border-radius:12px;padding:10px;margin-bottom:10px}
+.sect.okc{background:var(--okbg)} .sect.koc{background:var(--kobg)}
+.secth{font-weight:700;margin:2px 4px 8px;display:flex;justify-content:space-between}
+.crit{display:flex;align-items:center;gap:12px;padding:11px;border-radius:10px;margin-bottom:4px;cursor:pointer;user-select:none}
+.crit .box{width:30px;height:30px;border-radius:8px;border:2px solid #94a3b8;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800}
+.okc .crit.on .box{background:var(--ok);border-color:var(--ok);color:#fff}
+.koc .crit.on .box{background:var(--ko);border-color:var(--ko);color:#fff}
+.crit.on{background:rgba(255,255,255,.55)}
+.measure{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-bottom:10px}
+.measure .m{background:#f6f8fc;border-radius:12px;padding:10px;text-align:center}
+.measure label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.marks{display:flex;gap:6px;justify-content:center;margin-bottom:6px}
+.marks button{padding:8px 10px;font-size:.85rem}
+.timein input{width:90px;font-size:1.4rem;font-weight:700;text-align:center;padding:6px}
+.stepper{display:flex;align-items:center;justify-content:center;gap:8px}
+.stepper button{width:46px;height:46px;font-size:1.4rem;font-weight:700;padding:0}
+.stepper output{font-size:1.8rem;font-weight:700;min-width:40px}
+.scorebox{background:var(--mult);border-radius:12px;padding:10px;text-align:center;margin-bottom:10px}
+.scorebox .val{font-size:2rem;font-weight:800;color:var(--primary)}
+.multtable{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;font-size:.78rem}
+.multtable div{background:#fff;border-radius:6px;padding:4px}
+.multtable div.on{background:var(--primary);color:#fff;font-weight:700}
+table{border-collapse:collapse;width:100%}
+th,td{padding:7px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.78rem;color:var(--muted);text-transform:uppercase}
+.total{background:#0f172a;color:#fff;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.total b{font-size:1.6rem}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:100}
+dialog{border:0;border-radius:16px;padding:18px;width:min(420px,92vw)}
+dialog::backdrop{background:rgba(15,23,42,.45)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px}
+</style>
+</head>
+<body>
+<header>
+  <img src="icons/icon-192.png" alt="">
+  <div><b>Acrovictor</b><div class="sig">Vidéo acrosport · N'EPS by Quentin Delisle</div></div>
+  <span class="spacer"></span>
+  <button id="btnHist">📋 Résultats</button>
+  <button id="btnSettings">⚙️</button>
+</header>
+
+<main>
+<!-- ===== 1. NOMS ===== -->
+<section id="namesView">
+  <div class="card">
+    <h2>Noms des élèves <span class="muted small">(groupe de 4 à 7)</span></h2>
+    <div class="names">
+      <div class="namelist"><h3>🤸 Gymnastes</h3><div id="gymList"></div><button id="addGym">+ Ajouter un gymnaste</button></div>
+      <div class="namelist"><h3>👁️ Observateurs</h3><div id="obsList"></div><button id="addObs">+ Ajouter un observateur</button></div>
+    </div>
+    <div class="row" style="margin-top:16px"><span id="nameStatus" class="small muted"></span><span class="spacer"></span>
+      <button class="primary" id="btnGo" style="font-size:1.1rem;padding:14px 22px">Passer à la vidéo ▶</button></div>
+  </div>
+</section>
+
+<!-- ===== 2. VIDÉO + FICHE ===== -->
+<section id="evalView" class="hidden">
+  <div class="videobox">
+    <div class="stage">
+      <video id="live" muted playsinline autoplay></video>
+      <video id="replay" playsinline class="hidden"></video>
+      <div class="msg" id="stageMsg"><div>📷 Caméra arrêtée</div><button class="accent" id="btnCam">Activer la caméra</button></div>
+      <div class="ov tl" id="ovState">Direct</div>
+      <div class="ov tr" id="ovChrono">0,0 s</div>
+    </div>
+    <!-- commandes direct / enregistrement -->
+    <div class="vbar" id="barLive">
+      <button class="big rec" id="btnStart">● Start</button>
+      <button class="big primary hidden" id="btnStopRec">■ Stop</button>
+      <span class="spacer"></span>
+      <button id="btnMirror" title="Miroir">⇋</button>
+      <button id="btnSwitchCam" title="Changer de caméra">🔄</button>
+    </div>
+    <!-- commandes relecture -->
+    <div id="barReplay" class="hidden">
+      <input type="range" id="seek" min="0" max="1000" value="0" step="1">
+      <div class="vbar">
+        <button id="bBack">« 1 s</button>
+        <button id="bFrameB">‹ 0,1</button>
+        <button class="big primary" id="bPlay">⏸</button>
+        <button id="bFrameF">0,1 ›</button>
+        <button id="bFwd">1 s »</button>
+        <button id="bSlow">Vitesse ×1</button>
+        <span class="spacer"></span>
+        <button class="accent" id="btnNewVid">🎥 Nouvelle vidéo</button>
+      </div>
+    </div>
+    <div class="clips" id="clips"></div>
+  </div>
+  <div class="card" id="panel"></div>
+</section>
+
+<!-- ===== RÉSULTATS ===== -->
+<section id="histView" class="hidden">
+  <div class="card">
+    <div class="row"><h2 style="margin:0">Résultats enregistrés</h2><span class="spacer"></span>
+      <button class="primary" id="btnExport">⬇️ Export Excel</button><button id="btnBack">← Retour</button></div>
+  </div>
+  <div class="card"><table id="histTable"></table>
+    <div class="row" style="margin-top:12px"><span class="spacer"></span><button class="danger" id="btnWipe">Tout effacer</button></div></div>
+</section>
+</main>
+<footer>Acrovictor · N'EPS by Quentin Delisle</footer>
+
+<dialog id="dlgSet"><form method="dialog">
+  <h3>Réglages vidéo</h3>
+  <div class="row"><span>Qualité (largeur px)</span><span class="spacer"></span><select id="sRes"><option>480</option><option>640</option><option>960</option><option>1280</option><option>1920</option></select></div>
+  <div class="row" style="margin-top:14px"><span class="spacer"></span><button class="primary" value="ok">OK</button></div>
+</form></dialog>
+
+<script src="lib/xlsx.full.min.js"></script>
+<script>
+"use strict";
+/* ===== Fiche ===== */
+const FIGS={A:'img/figure-a.png',B:'img/figure-b.png',C:'img/figure-c.png'};
+const INDISP=['La figure est tenue 3 secondes',"Aucun des gymnastes n'a marché pour se mettre en place",'Le dos des gymnastes est droit'];
+const PENS=['Ajustements pendant le montage / démontage','Communication inutile','Gestes parasites (main dans les cheveux, …)'];
+/* Multiplicateur : 5 à 10 s → x1 ; 10 à 14 s → x1,5 ; + de 14 s → x2 */
+function multFor(t){ if(t==null||isNaN(t)) return null; return t<10?1:(t<=14?1.5:2); }
+
+const KEY='acrovictor.v3';
+let S=load();
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.results) return s;}catch(e){} return {results:[],settings:{res:960,mirror:false}}; }
+function save(){ localStorage.setItem(KEY,JSON.stringify(S)); }
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null?'–':Number(n).toLocaleString('fr-FR',{maximumFractionDigits:2});
+const fmtT=n=>n==null||!isFinite(n)?'–':Number(n).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' s';
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400);}
+
+/* ===== Calcul ===== */
+const newSlot=()=>({fig:null,debut:null,fin:null,time:null,steps:0,indisp:[false,false,false],pen:[false,false,false],amelio:''});
+function slotScore(s){
+  const valid=s.indisp.every(Boolean), nPen=s.pen.filter(Boolean).length, m=multFor(s.time);
+  if(!valid) return {valid,score:0,m,nPen};
+  if(m==null) return {valid,score:null,m,nPen};
+  return {valid,score:Math.max(0,m*s.steps-nPen),m,nPen};
+}
+function essaisOf(G,k){ return G.videos.flatMap(v=>v.figs.filter(f=>f.fig===k)); }
+function figFinal(G,k){ const sc=essaisOf(G,k).map(f=>slotScore(f).score).filter(x=>x!=null); return sc.length?Math.max(...sc):null; }
+function groupTotal(G){ const v=['A','B','C'].map(k=>figFinal(G,k)).filter(x=>x!=null).sort((a,b)=>b-a).slice(0,2); return v.length?v.reduce((a,b)=>a+b,0):null; }
+
+/* ===== 1. Noms ===== */
+let names={gym:['','',''],obs:['']};
+function renderNames(){
+  for(const k of ['gym','obs']) $('#'+k+'List').innerHTML=names[k].map((v,i)=>`<input data-k="${k}" data-i="${i}" value="${esc(v)}" placeholder="${k==='gym'?'Gymnaste':'Observateur'} ${i+1}" autocomplete="off">`).join('');
+  status();
+}
+function status(){
+  const g=names.gym.filter(x=>x.trim()).length, o=names.obs.filter(x=>x.trim()).length, n=g+o;
+  $('#nameStatus').textContent=`${g} gymnaste(s) · ${o} observateur(s) · ${n} élèves${n&&(n<4||n>7)?' ⚠️ groupe de 4 à 7':''}`;
+  $('#btnGo').disabled=!g;
+}
+document.addEventListener('input',e=>{ const t=e.target; if(t.dataset.k){ names[t.dataset.k][+t.dataset.i]=t.value; status(); } });
+$('#addGym').onclick=()=>{ names.gym.push(''); renderNames(); $('#gymList').lastElementChild.focus(); };
+$('#addObs').onclick=()=>{ names.obs.push(''); renderNames(); $('#obsList').lastElementChild.focus(); };
+$('#btnGo').onclick=()=>{
+  G={id:Date.now().toString(36),date:new Date().toISOString(),gym:names.gym.map(s=>s.trim()).filter(Boolean),obs:names.obs.map(s=>s.trim()).filter(Boolean),videos:[]};
+  newEval(); show('eval'); setState(stream?'live':'off'); if(!stream) camStart();
+};
+function show(v){ ['names','eval','hist'].forEach(x=>$('#'+x+'View').classList.toggle('hidden',x!==v)); if(v!=='eval'){ camStop(); clearClips(); } window.scrollTo(0,0); }
+
+/* ===== 2. Fiche (après la vidéo) ===== */
+let G=null, cur=null;   // G = groupe ; cur = évaluation de la vidéo en cours
+function newEval(){ cur={mode:1,slot:0,slots:[newSlot(),newSlot()],clip:null}; renderPanel(); }
+function S_(){ return cur.slots[cur.slot]; }
+function essaiNum(k){ return essaisOf(G,k).length + cur.slots.slice(0,cur.mode).filter((s,i)=>s.fig===k && i<=cur.slot).length; }
+
+function renderPanel(){
+  if(!G) return;
+  const s=S_(), sc=slotScore(s), m=sc.m;
+  const slotTab=i=>{const x=cur.slots[i],r=slotScore(x);return `<button data-slot="${i}" class="${i===cur.slot?'on':''}">Figure ${i+1}${x.fig?' : '+x.fig:''}<span class="sc">${x.fig?(r.valid?(r.score!=null?fmt(r.score)+' pts':'temps ?'):'non validée · 0'):'à choisir'}</span></button>`;};
+  const figBox=k=>{const n=essaisOf(G,k).length;return `<div data-fig="${k}" class="${s.fig===k?'on':''}"><img src="${FIGS[k]}" alt=""><b>${k}</b><span class="sc">${n?n+' essai'+(n>1?'s':'')+' · '+fmt(figFinal(G,k))+' pts':'—'}</span></div>`;};
+  const formula=!s.fig?'Choisissez la figure vue':(!sc.valid?'Critère indispensable manquant → 0':(m==null?'Mesurez le temps':`x${fmt(m)} × ${s.steps} étape${s.steps>1?'s':''}${sc.nPen?` − ${sc.nPen} pénalité${sc.nPen>1?'s':''}`:''}`));
+  const en=s.fig?essaiNum(s.fig):null;
+  $('#panel').innerHTML=`
+    <div class="small"><b>🤸 ${G.gym.map(esc).join(', ')}</b><br><span class="muted">👁️ ${G.obs.map(esc).join(', ')||'—'}</span></div>
+    <h3 style="margin-top:12px">Vidéo ${G.videos.length+1} — j'observe :</h3>
+    <div class="modes"><button data-mode="1" class="${cur.mode===1?'on':''}">1 figure</button><button data-mode="2" class="${cur.mode===2?'on':''}">Un enchaînement de 2 figures</button></div>
+    ${cur.mode===2?`<div class="slottabs">${slotTab(0)}${slotTab(1)}</div>`:''}
+    <div class="small muted" style="margin-bottom:6px">Figure vue ${cur.mode===2?(cur.slot===0?'en 1ᵉʳ':'en 2ᵉ'):''} :</div>
+    <div class="figpick">${figBox('A')}${figBox('B')}${figBox('C')}</div>
+    ${en?`<div class="small" style="margin:-4px 0 10px"><b>Figure ${s.fig} · essai ${en}</b>${en>2?' <span style="color:#9a5b00">(au-delà de 2 essais, le meilleur est retenu)</span>':''}</div>`:''}
+    <div class="sect okc"><div class="secth"><span>Indispensable !</span><span>${s.indisp.filter(Boolean).length}/3</span></div>
+      ${INDISP.map((t,i)=>`<div class="crit ${s.indisp[i]?'on':''}" data-ind="${i}"><span class="box">${s.indisp[i]?'✓':''}</span>${esc(t)}</div>`).join('')}</div>
+    <div class="sect koc"><div class="secth"><span>Pénalités (+1 point)</span><span>${sc.nPen}</span></div>
+      ${PENS.map((t,i)=>`<div class="crit ${s.pen[i]?'on':''}" data-pen="${i}"><span class="box">${s.pen[i]?'+1':''}</span>${esc(t)}</div>`).join('')}</div>
+    <div class="measure">
+      <div class="m"><label>Temps (repères pris sur la vidéo)</label>
+        <div class="marks"><button data-mark="debut">⏱ Début${s.debut!=null?' '+fmtT(s.debut):''}</button><button data-mark="fin">⏱ Fin${s.fin!=null?' '+fmtT(s.fin):''}</button></div>
+        <div class="timein"><input id="inTime" inputmode="decimal" value="${s.time!=null?String(s.time).replace('.',','):''}" placeholder="–"> s</div></div>
+      <div class="m"><label>Nombre d'étapes</label><div class="stepper"><button data-step="-1">−</button><output>${s.steps}</output><button data-step="1">+</button></div></div>
+    </div>
+    <div class="scorebox"><div class="small">Score : multiplicateur × nb d'étapes</div><div>${formula}</div>
+      <div class="val">${s.fig&&sc.score!=null?fmt(sc.score):'–'} <span class="small">pts</span></div>
+      <div class="multtable"><div class="${m===1?'on':''}">5 à 10 s<br>x1</div><div class="${m===1.5?'on':''}">10 à 14 s<br>x1,5</div><div class="${m===2?'on':''}">+ de 14 s<br>x2</div></div>
+      ${s.time!=null&&s.time<5?'<div class="small" style="color:#9a5b00;margin-top:6px">⚠️ moins de 5 s</div>':''}
+    </div>
+    <label class="small muted">Proposition d'amélioration</label>
+    <textarea id="inAmelio" rows="2">${esc(s.amelio)}</textarea>
+    <button class="primary" id="btnSaveVid" style="width:100%;margin-top:12px;padding:14px;font-weight:700">✔ Valider cette vidéo</button>
+    ${recap()}
+    <div class="row"><button class="danger" id="btnCancel">Abandonner le groupe</button><span class="spacer"></span><button class="accent" id="btnFinish">💾 Terminer le groupe</button></div>`;
+}
+function recap(){
+  if(!G.videos.length) return '<p class="small muted" style="margin-top:12px">Aucune vidéo validée pour ce groupe.</p>';
+  const rows=['A','B','C'].map(k=>{const e=essaisOf(G,k); if(!e.length) return ''; return `<tr><td><b>${k}</b></td>${[0,1].map(i=>`<td>${e[i]?fmt(slotScore(e[i]).score)+` <span class="small muted">(${fmtT(e[i].time)} · ${e[i].steps} ét.)</span>`:'–'}</td>`).join('')}<td><b>${fmt(figFinal(G,k))}</b></td></tr>`;}).join('');
+  return `<h3 style="margin-top:14px">Récapitulatif du groupe</h3><table><tr><th>Fig.</th><th>Essai 1</th><th>Essai 2</th><th>Final</th></tr>${rows}</table>
+    <div class="total"><span>Total (2 meilleures figures)</span><b>${fmt(groupTotal(G))} pts</b></div>`;
+}
+$('#panel').addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-mode],[data-slot],[data-fig],[data-ind],[data-pen],[data-step],[data-mark],#btnSaveVid,#btnFinish,#btnCancel'); if(!t) return;
+  const s=S_();
+  if(t.dataset.mode){ cur.mode=+t.dataset.mode; if(cur.mode===1) cur.slot=0; }
+  else if(t.dataset.slot!=null) cur.slot=+t.dataset.slot;
+  else if(t.dataset.fig) s.fig=t.dataset.fig;
+  else if(t.dataset.ind!=null) s.indisp[+t.dataset.ind]=!s.indisp[+t.dataset.ind];
+  else if(t.dataset.pen!=null) s.pen[+t.dataset.pen]=!s.pen[+t.dataset.pen];
+  else if(t.dataset.step!=null) s.steps=Math.max(0,Math.min(50,s.steps+ +t.dataset.step));
+  else if(t.dataset.mark){
+    if(state!=='replay'){ toast('Les repères se prennent sur la vidéo relue'); return; }
+    s[t.dataset.mark]=Math.round(rv.currentTime*10)/10;
+    if(s.debut!=null&&s.fin!=null){ if(s.fin<s.debut) [s.debut,s.fin]=[s.fin,s.debut]; s.time=Math.round((s.fin-s.debut)*10)/10; }
+  }
+  else if(t.id==='btnSaveVid'){
+    const used=cur.slots.slice(0,cur.mode);
+    if(used.some(x=>!x.fig)){ toast('Choisissez la figure vue'+(cur.mode===2?' (figures 1 et 2)':'')); return; }
+    if(cur.mode===2&&used[0].fig===used[1].fig&&!confirm('Les 2 figures sont identiques. Continuer ?')) return;
+    if(used.some(x=>x.time==null)&&!confirm('Un temps n\'est pas mesuré. Valider quand même ?')) return;
+    G.videos.push({n:G.videos.length+1,mode:cur.mode,date:new Date().toISOString(),figs:structuredClone(used)});
+    toast('Vidéo '+G.videos.length+' validée ✔'); newEval(); return;
+  }
+  else if(t.id==='btnFinish'){
+    if(!G.videos.length&&!confirm('Aucune vidéo validée. Terminer quand même ?')) return;
+    if(G.videos.length){ S.results.push(G); save(); toast('Groupe enregistré ✔'); }
+    G=null; names={gym:['','',''],obs:['']}; renderNames(); show('names'); return;
+  }
+  else if(t.id==='btnCancel'){ if(confirm('Abandonner ce groupe sans enregistrer ?')){ G=null; show('names'); } return; }
+  renderPanel();
+});
+$('#panel').addEventListener('change',ev=>{
+  if(ev.target.id==='inTime'){ const v=parseFloat(ev.target.value.replace(',','.')); S_().time=isNaN(v)?null:Math.round(v*10)/10; renderPanel(); }
+});
+$('#panel').addEventListener('input',ev=>{ if(ev.target.id==='inAmelio') S_().amelio=ev.target.value; });
+
+/* ===== Vidéo : direct → enregistrement → relecture ===== */
+const lv=$('#live'), rv=$('#replay');
+let stream=null, devices=[], devIdx=0, rec=null, chunks=[], recStart=0, state='off', clips=[], curClip=-1, slow=false;
+function setState(st){
+  state=st;
+  $('#stageMsg').classList.toggle('hidden',st!=='off');
+  lv.classList.toggle('hidden',st==='replay'); rv.classList.toggle('hidden',st!=='replay');
+  $('#barLive').classList.toggle('hidden',st==='replay'); $('#barReplay').classList.toggle('hidden',st!=='replay');
+  $('#btnStart').classList.toggle('hidden',st==='rec'); $('#btnStopRec').classList.toggle('hidden',st!=='rec');
+  $('#btnStart').disabled=false;
+  const o=$('#ovState'); o.classList.toggle('rec',st==='rec');
+  o.textContent={off:'Caméra arrêtée',live:'Direct',rec:'● Enregistrement',replay:'Relecture vidéo '+(curClip+1)}[st];
+  if(st!=='replay'&&!rv.paused) rv.pause();
+  renderClips();
+}
+async function camStart(deviceId){
+  if(!navigator.mediaDevices?.getUserMedia){ toast('Caméra indisponible (HTTPS requis)'); return false; }
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  try{
+    const w=S.settings.res;
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:deviceId?{deviceId:{exact:deviceId},width:{ideal:w}}:{facingMode:'environment',width:{ideal:w}}});
+    lv.srcObject=stream; await lv.play().catch(()=>{});
+    devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+    const id=stream.getVideoTracks()[0].getSettings().deviceId; devIdx=Math.max(0,devices.findIndex(d=>d.deviceId===id));
+    if(state!=='replay') setState('live');
+    return true;
+  }catch(err){ toast('Caméra refusée : '+err.message); setState('off'); return false; }
+}
+function camStop(){ if(rec&&rec.state!=='inactive') rec.stop(); if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;} lv.srcObject=null; setState('off'); }
+function pickMime(){ for(const m of ['video/mp4;codecs=avc1','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4']) if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m)) return m; return ''; }
+async function startRec(){
+  if(!stream && !(await camStart())) return;
+  if(!window.MediaRecorder){ toast('Enregistrement vidéo non pris en charge par ce navigateur'); return; }
+  chunks=[]; const mime=pickMime();
+  rec=new MediaRecorder(stream, mime?{mimeType:mime,videoBitsPerSecond:2500000}:undefined);
+  rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
+  rec.onstop=()=>{
+    const dur=(performance.now()-recStart)/1000;
+    const blob=new Blob(chunks,{type:rec.mimeType||mime||'video/webm'});
+    clips.push({url:URL.createObjectURL(blob),dur}); playClip(clips.length-1);
+  };
+  rec.start(250); recStart=performance.now(); setState('rec');
+}
+$('#btnStart').onclick=startRec;
+$('#btnStopRec').onclick=()=>{ if(rec&&rec.state==='recording'){ $('#btnStopRec').disabled=true; rec.stop(); } };
+$('#btnCam').onclick=()=>camStart();
+function playClip(i){
+  curClip=i; const c=clips[i]; rv.src=c.url; rv.playbackRate=slow?0.5:1; setState('replay');
+  rv.onloadedmetadata=()=>{
+    // correctif des vidéos webm sans durée (Chrome)
+    if(!isFinite(rv.duration)){ rv.currentTime=1e101; rv.ontimeupdate=()=>{ rv.ontimeupdate=null; rv.currentTime=0; rv.play().catch(()=>{}); }; }
+    else rv.play().catch(()=>{});
+  };
+  $('#btnStopRec').disabled=false;
+}
+function dur(){ return isFinite(rv.duration)&&rv.duration>0 ? rv.duration : (clips[curClip]?.dur||0); }
+$('#btnNewVid').onclick=()=>{ rv.pause(); setState(stream?'live':'off'); if(!stream) camStart(); };
+$('#bPlay').onclick=()=>{ if(rv.paused){ if(rv.ended||rv.currentTime>=dur()-0.05) rv.currentTime=0; rv.play(); } else rv.pause(); };
+rv.addEventListener('play',()=>$('#bPlay').textContent='⏸'); rv.addEventListener('pause',()=>$('#bPlay').textContent='▶');
+rv.addEventListener('ended',()=>$('#bPlay').textContent='↻');
+const seekBy=d=>{ rv.pause(); rv.currentTime=Math.max(0,Math.min(dur(),rv.currentTime+d)); };
+$('#bBack').onclick=()=>seekBy(-1); $('#bFwd').onclick=()=>seekBy(1);
+$('#bFrameB').onclick=()=>seekBy(-0.1); $('#bFrameF').onclick=()=>seekBy(0.1);
+$('#bSlow').onclick=()=>{ slow=!slow; rv.playbackRate=slow?0.5:1; $('#bSlow').textContent='Vitesse ×'+(slow?'0,5':'1'); };
+$('#seek').addEventListener('input',e=>{ const d=dur(); if(d) rv.currentTime=d*e.target.value/1000; });
+function renderClips(){
+  $('#clips').innerHTML=clips.length?'<span class="small muted" style="align-self:center">Revoir :</span>'+clips.map((c,i)=>`<button data-clip="${i}" class="${state==='replay'&&i===curClip?'on':''}">▶ Vidéo ${i+1} (${fmtT(c.dur)})</button>`).join(''):'';
+}
+$('#clips').addEventListener('click',e=>{ const b=e.target.closest('[data-clip]'); if(b&&state!=='rec') playClip(+b.dataset.clip); });
+function clearClips(){ clips.forEach(c=>URL.revokeObjectURL(c.url)); clips=[]; curClip=-1; rv.removeAttribute('src'); renderClips(); }
+$('#btnSwitchCam').onclick=()=>{ if(state==='rec') return; if(devices.length<2){toast('Une seule caméra');return;} devIdx=(devIdx+1)%devices.length; camStart(devices[devIdx].deviceId); };
+function applyMirror(){ lv.classList.toggle('mirror',!!S.settings.mirror); rv.classList.toggle('mirror',!!S.settings.mirror); }
+$('#btnMirror').onclick=()=>{ S.settings.mirror=!S.settings.mirror; save(); applyMirror(); };
+function tick(){
+  requestAnimationFrame(tick);
+  const o=$('#ovChrono');
+  if(state==='rec') o.textContent=fmtT((performance.now()-recStart)/1000);
+  else if(state==='replay'){ o.textContent=fmtT(rv.currentTime); const d=dur(); if(d&&document.activeElement!==$('#seek')) $('#seek').value=Math.round(rv.currentTime/d*1000); }
+  else o.textContent='0,0 s';
+}
+
+/* ===== Réglages ===== */
+$('#btnSettings').onclick=()=>{ $('#sRes').value=S.settings.res; $('#dlgSet').showModal(); };
+$('#dlgSet').addEventListener('close',()=>{ const r=+$('#sRes').value, ch=r!==S.settings.res; S.settings.res=r; save(); if(ch&&stream&&state!=='rec') camStart(devices[devIdx]?.deviceId); });
+
+/* ===== Résultats + export ===== */
+$('#btnHist').onclick=()=>{ if(G&&!confirm('Quitter le groupe en cours ? (non enregistré)')) return; G=null; renderHist(); show('hist'); };
+$('#btnBack').onclick=()=>{ renderNames(); show('names'); };
+function renderHist(){
+  $('#histTable').innerHTML=S.results.length?`<tr><th>Heure</th><th>Gymnastes</th><th>Observateurs</th><th>Vidéos</th><th>A</th><th>B</th><th>C</th><th>Total</th><th></th></tr>`+
+    S.results.map((r,i)=>`<tr><td class="small">${new Date(r.date).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${r.gym.map(esc).join(', ')}</td><td class="small">${r.obs.map(esc).join(', ')}</td><td>${r.videos.length}</td>${['A','B','C'].map(k=>`<td>${fmt(figFinal(r,k))}</td>`).join('')}<td><b>${fmt(groupTotal(r))}</b></td><td><button data-del="${i}">🗑️</button></td></tr>`).join('')
+    :'<tr><td class="muted">Aucun résultat.</td></tr>';
+}
+$('#histTable').addEventListener('click',e=>{ const b=e.target.closest('[data-del]'); if(b&&confirm('Supprimer ?')){ S.results.splice(+b.dataset.del,1); save(); renderHist(); } });
+$('#btnWipe').onclick=()=>{ if(confirm('Effacer tous les résultats ?')){ S.results=[]; save(); renderHist(); } };
+$('#btnExport').onclick=()=>{
+  if(!S.results.length){ toast('Aucun résultat'); return; }
+  const yn=b=>b?'Oui':'Non', wb=XLSX.utils.book_new(), d=r=>new Date(r.date).toLocaleString('fr-FR');
+  const r1=[['Date','Gymnastes','Observateurs','Nb vidéos','Score final A','Score final B','Score final C','Total (2 meilleures)']];
+  S.results.forEach(r=>r1.push([d(r),r.gym.join(', '),r.obs.join(', '),r.videos.length,...['A','B','C'].map(k=>figFinal(r,k)??''),groupTotal(r)??'']));
+  const ws1=XLSX.utils.aoa_to_sheet(r1); ws1['!cols']=[{wch:18},{wch:34},{wch:28},{wch:9},{wch:12},{wch:12},{wch:12},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Synthèse');
+  const r2=[['Date','Gymnastes','Observateurs','Vidéo n°','Mode','Ordre','Figure','Essai n°',...INDISP,'Figure validée',...PENS,'Début (s)','Fin (s)','Temps (s)','Multiplicateur','Nb étapes','Score','Proposition d\'amélioration']];
+  S.results.forEach(r=>{ const cnt={};
+    r.videos.forEach(v=>v.figs.forEach((f,j)=>{ cnt[f.fig]=(cnt[f.fig]||0)+1; const s=slotScore(f);
+      r2.push([d(r),r.gym.join(', '),r.obs.join(', '),v.n,v.mode===2?'Enchaînement 2 figures':'1 figure',j+1,f.fig,cnt[f.fig],...f.indisp.map(yn),yn(s.valid),...f.pen.map(yn),f.debut??'',f.fin??'',f.time??'',s.m??'',f.steps,s.score??'',f.amelio||'']); })); });
+  const ws2=XLSX.utils.aoa_to_sheet(r2); ws2['!cols']=[{wch:18},{wch:30},{wch:26},{wch:8},{wch:20},{wch:6},{wch:7},{wch:7},{wch:14},{wch:14},{wch:14},{wch:10},{wch:14},{wch:14},{wch:14},{wch:8},{wch:8},{wch:9},{wch:12},{wch:9},{wch:8},{wch:36}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Détail des figures');
+  XLSX.writeFile(wb,'Acrosport_resultats_'+new Date().toISOString().slice(0,10)+'.xlsx');
+};
+
+/* ===== Init ===== */
+applyMirror(); renderNames(); setState('off'); requestAnimationFrame(tick);
+window.addEventListener('beforeunload',e=>{ if(G){ e.preventDefault(); e.returnValue=''; } });
+if('serviceWorker' in navigator&&location.protocol!=='file:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
